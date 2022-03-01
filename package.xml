@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>qforge_ros</name>
+  <version>0.0.1</version>
+
+  <description>QForge solution for ICUAS 2022 competition</description>
+
+  <maintainer email="jad.wehbeh@mail.mcgill.ca">Jad Wehbeh</maintainer>
+  <maintainer email="juan.hernandezramirez@mail.mcgill.ca">Juan Hernandez</maintainer>
+  <maintainer email="jackson.empey@mail.mcgill.ca">Jackson Empey</maintainer>
+  <maintainer email="fares.eltin@mail.mcgill.ca">Fares El Tin</maintainer>
+  <maintainer email="zihao.zhuo@mail.mcgill.ca">Zihao Zhuo</maintainer>
+  <maintainer email="james.anawati@mail.mcgill.ca">James Anawati</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>mavros_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>mavros_msgs</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <exec_depend>mavros_msgs</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+ <export>
+ </export>
+</package>
