@@ -2,10 +2,10 @@
 
 # Commander node for qforge_ros package
 # Publishes current vehicle state to 'vehicle_state'
-# Subscribes to current zone at 'current_zone'
+# Subscribes to Int16 current zone at 'current_zone'
 # Subscribes to Bool altitude warning at 'alt_state'
-# Subscribes to emergency status at 'emergency_hold'
-# Subscribes to ar lock at 'camera/ar_lock'
+# Subscribes to Bool  emergency status at 'emergency_hold'
+# Subscribes to Bool ar lock at 'camera/ar_lock'
 
 import rospy
 from std_msgs.msg import String
