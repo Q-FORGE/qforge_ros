@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Commander node for qforge_ros package
-# Publishes current vehicle state to 'vehicle_state'
+# Publishes String current vehicle state to 'vehicle_state'
 # Subscribes to Int16 current zone at 'current_zone'
 # Subscribes to Bool altitude warning at 'alt_state'
 # Subscribes to Bool  emergency status at 'emergency_hold'
