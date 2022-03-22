@@ -3,7 +3,7 @@
 # Commander node for qforge_ros package
 # Publishes current vehicle state to 'vehicle_state'
 # Subscribes to current zone at 'current_zone'
-# Subscribes to altitude warning at 'alt_state'
+# Subscribes to Bool altitude warning at 'alt_state'
 # Subscribes to emergency status at 'emergency_hold'
 # Subscribes to ar lock at 'camera/ar_lock'
 
@@ -22,6 +22,10 @@ alt_state = False
 ar_lock = False
 current_zone = 1
 
+def alt_callback(msg):
+    # Update 'alt_state' when topic is published
+    global alt_state
+    alt_state = msg.data
 
 def commander():
 
@@ -31,6 +35,7 @@ def commander():
 
     # Define vehicle state publisher
     state_pub = rospy.Publisher('vehicle_state', String, queue_size = 1)
+    alt_sub = rospy.Subscriber('alt_state', Bool, alt_callback)
 
     while not rospy.is_shutdown():
 
