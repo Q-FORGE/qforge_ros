@@ -2,7 +2,7 @@
 
 # Commander node for qforge_ros package
 # Publishes estimated artag location 'ar_tag_est'
-# Subscribes to ar tag measurment 'ar_point'
+# Subscrbies to ar tag measurment 'ar_point'
 
 import rospy
 import tf2_ros
@@ -11,39 +11,33 @@ from std_msgs.msg import String
 from std_msgs.msg import Bool
 from std_msgs.msg import Int16
 from geometry_msgs.msg import Point
+from geometry_msgs.msg import PoseStamped
+from tf.transformations import quaternion_matrix
 from tf import transformations
-
-# globals
-# global Q
-# global R
-# global F
-# global P
-# global H
-global rct
-# global canRun
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
 
-# Initialize state parameters
-# Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
-# R = np.diag(np.array([0.1, 0.1, 0.1])) # Measurment covariance 
+class quat:
+    def __init__(self,q):
+        self.q = q
+        self.R = np.identity(3)
+    def calc_rot(self):
+        qr = self.q[0]
+        qi = self.q[1]
+        qj = self.q[2]
+        qk = self.q[3]
 
-# F = np.identity(3) # state transformation
-# H = np.identity(3) # measurment jacobian initialization
+        self.R[0,0] = 1 - 2*(qj**2 + qk**2)
+        self.R[0,1] = 2*(qi*qj-qk*qr)
+        self.R[0,2] = 2*(qi*qk + qj*qr)
+        self.R[1,0] = 2*(qi*qj + qk*qr)
+        self.R[1,1] = 1 - 2*(qi**2 + qk**2)
+        self.R[1,2] = 2*(qj*qk - qi*qr)
+        self.R[2,0] = 2*(qi*qk - qj*qr)
+        self.R[2,1] = 2*(qj*qk + qi*qr)
+        self.R[2,2] = 1 - 2*(qi**2 + qj**2)
 
-# P = np.identity(3) # Initialize covaraince
-
-rct = np.array([0, 0, 0]) # camera to tag position in camera frame
-# x_kk = np.array([0, 0, 0]) # initial position
-
-# canRun = True
-
-# def callback(data):
-#     rct[0] = data.x
-#     rct[1] = data.y
-#     rct[2] = data.z
-#     canRun = True
 
 def arTag():
 
@@ -53,63 +47,63 @@ def arTag():
 
     # Define tag estimate publisher
     tag_pub = rospy.Publisher('ar_tag_est', Point, queue_size = 1)
-    # tag_meas_sub = rospy.Subscriber('ar_point', Point, callback)
-
-    tfBuffer = tf2_ros.Buffer()
-    listener = tf2_ros.TransformListener(tfBuffer)
-    trans = tfBuffer.lookup_transform('red', 'camera', rospy.Time())
 
     Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
-    R = np.diag(np.array([0.1, 0.1, 0.1])) # Measurment covariance 
+    R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance 
 
     F = np.identity(3) # state transformation
     H = np.identity(3) # measurment jacobian initialization
 
-    P = np.identity(3) # Initialize covaraince
+    P = 10*np.identity(3) # Initialize covaraince
 
-    rct = np.array([0, 0, 0]) # camera to tag position in camera frame
-    rct_old = rct
-    x_kk = np.array([0, 0, 0]) # initial position
+    rtc = np.array([0.0, 0.0, 0.0]) # camera to tag position in camera frame
+    rtc_old = rtc
+    q = np.array([0.0, 0.0, 0.0, 0.0])
+    qcb = np.array([0.500,-0.500, 0.500, -0.500])
+    quat_cb = quat(qcb)
+    quat_cb.calc_rot()
+    Ccb = quat_cb.R
+    rbi = np.array([0.0,0.0,0.0])
+    rcb = np.array([0.200, 0.000, 0.050])
+    x_kk = np.array([0, 0,0]) # initial position
 
-    canRun = True
 
     while not rospy.is_shutdown():
-        # if canRun:
-        if True:
-            try:
-                trans = tfBuffer.lookup_transform('red', 'camera', rospy.Time())
-            except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-                rate.sleep()
-                # continue
-            
-            # print(trans.transform)
-            # trans.transform
+        data = rospy.wait_for_message('/ar_point', Point)
+        rtc[0] = data.x
+        rtc[1] = data.y
+        rtc[2] = data.z
 
-            data = rospy.wait_for_message('/ar_point', Point)
-            rct[0] = data.x
-            rct[1] = data.y
-            rct[2] = data.z
+        data2 = rospy.wait_for_message('/red/pose', PoseStamped)
+        q[0] = data2.pose.orientation.w
+        q[1] = data2.pose.orientation.x
+        q[2] = data2.pose.orientation.y
+        q[3] = data2.pose.orientation.z
+        q_cls = quat(q)
+        q_cls.calc_rot()
+        Cbi = q_cls.R
+        H = np.transpose(np.matmul(Ccb,Cbi))
 
-            
-            #get Cbi
-            x_kkm1 = x_kk
-            P_kkm1 = np.matmul(F, np.matmul(P, np.transpose(F))) + Q
-            y = rct - rct_old
-            S = np.matmul(H,np.matmul(P_kkm1,np.transpose(H))) + R
-            K = np.matmul(P_kkm1, np.matmul(np.transpose(H), np.linalg.inv(S)))
-            x = x_kkm1 + np.dot(K, y)
-            P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
+        rbi[0] = data2.pose.position.x
+        rbi[1] = data2.pose.position.y
+        rbi[2] = data2.pose.position.z
 
-            rct_old = rct
-            
-            msg = Point()
-            msg.x = x[0]
-            msg.y = x[1]
-            msg.z = x[2]
+        x_kkm1 = x_kk
+        P_kkm1 = np.matmul(F, np.matmul(P, np.transpose(F))) + Q
+        rtc_km1 =  np.dot(np.transpose(np.matmul(Cbi,Ccb)), x_kkm1 - rbi - np.dot(np.transpose(Cbi), rcb))
+        y =  (rtc  - rtc_km1)
+        S = np.matmul(H,np.matmul(P_kkm1,np.transpose(H))) + R
+        K = np.matmul(P_kkm1, np.matmul(np.transpose(H), np.linalg.inv(S)))
+        x_kk = x_kkm1 + np.dot(K, y)
+        P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
+        print(P)
+        
+        msg = Point()
+        msg.x = x_kk[0]
+        msg.y = x_kk[1]
+        msg.z = x_kk[2]
 
-            tag_pub.publish(msg)
-
-            canRun = False
+        tag_pub.publish(msg)
             
             
 if __name__ == '__main__':
