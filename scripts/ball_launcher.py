@@ -4,8 +4,10 @@
 
 import rospy
 from std_msgs.msg import String
-from std_msgs.msg import Bool
-from std_msgs.msg import Int16
+#from std_msgs.msg import Bool
+#from std_msgs.msg import Int16
+from geometry_msgs import PointStamped
+from geometry_msgs import TwistStamped
 
 from numpy import array,append,linalg
 from math import pi
@@ -39,12 +41,22 @@ def hit_wall(t,x):
 hit_wall.terminal = True
 hit_wall.direction = -1
 
+def velocity_callback(data):
+    rospy.loginfo("I heard %s",data.data)
+
+def position_callback(data):
+    rospy.loginfo("I heard %s",data.data)
+
 def launcher():
     launcher_pub = rospy.Publisher('launcher_status', String, queue_size=10)
     rospy.init_node('launcher')
     rate = rospy.Rate(launcher_rate)
 
     while not rospy.is_shutdown():
+
+        #/red/ball/position geometry_msgs/PointStamped
+        #/red/ball/velocity_relative geometry_msgs/TwistStamped
+        #/red/velocity_relative geometry_msgs/TwistStamped
 
         sol = solve_ivp(xdot, [0,t_end], x0, method='RK45', events=hit_wall)
 
