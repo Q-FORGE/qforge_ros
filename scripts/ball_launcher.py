@@ -5,7 +5,7 @@
 import rospy
 from std_msgs.msg import String
 from std_msgs.msg import Bool
-from std_msgs.msg import Int16
+from std_msgs.msg import Float64
 from nav_msgs.msg import Odometry
 
 from numpy import array,append,linalg
@@ -14,7 +14,7 @@ from scipy.integrate import solve_ivp
 from scipy.spatial.transform import Rotation as R
 
 # Fetch node rate parameter
-launcher_rate = rospy.get_param('launcher_rate',10)
+launcher_rate = rospy.get_param('launcher_rate',60)
 
 # mavros uses ENU convention
 target_position = array([[12.5,-3,2]])
@@ -28,7 +28,7 @@ Cd = 0 # sphere drag coefficient
 rho = 1.225 # [kg/m^3] air density
 A = pi*r*r # ball cross-section area
 g = -9.81 # [m/s^2]
-t_end = 20 # searching period
+t_end = 10 # searching period
 
 # initial ball status
 def xdot(t,x):
@@ -47,35 +47,44 @@ def odometry_callback(msg):
     velocity = r.apply([[msg.twist.twist.linear.x,msg.twist.twist.linear.y,msg.twist.twist.linear.z]])
 
 def launcher():
-    launcher_pub = rospy.Publisher('launcher_status', String, queue_size=1)
-    ball_pub = rospy.Publisher('ball_status', String, queue_size=1)
+    # Will it hit the wall plane?
+    status_pub = rospy.Publisher('Launcher_status', Bool, queue_size=1)
+    # If so, what are the errors between the impact point and the target
+    lonERR_pub = rospy.Publisher('Launcher_lonERR', Float64, queue_size=1)
+    latERR_pub  = rospy.Publisher('Launcher_latERR', Float64, queue_size=1)
+    # Ball position and velocity for debugging
+    ball_pub = rospy.Publisher('Launcher_ball', String, queue_size=1)
+
     rospy.init_node('launcher')
     rate = rospy.Rate(launcher_rate)
 
     while not rospy.is_shutdown():
-
-        #/red/ball/position geometry_msgs/PointStamped
-        #/red/ball/velocity_relative geometry_msgs/TwistStamped
-        #/red/velocity_relative geometry_msgs/TwistStamped
-        rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback, queue_size=1, buff_size=2**24)
+        rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback, queue_size=1, buff_size=2**10)
 
         x0 = append(position,velocity)
-        ball_status = "position = [%.2f,%.2f,%.2f], velocity = [%.2f,%.2f,%.2f]" %(x0[0],x0[1],x0[2],x0[3],x0[4],x0[5])
-        ball_pub.publish(ball_status)
+        ball = "position = [%.2f,%.2f,%.2f], velocity = [%.2f,%.2f,%.2f]" %(x0[0],x0[1],x0[2],x0[3],x0[4],x0[5])
+        ball_pub.publish(ball)
 
         sol = solve_ivp(xdot, [0,t_end], x0, method='RK45', events=hit_wall)
 
         if sol.status == 0:
-            launcher_status = "Will not hit wall in %.2f " %t_end
-            launcher_pub.publish(launcher_status)
+            # IVP solver reaches the end time without triggering hit_wall event
+            status = False
+            lonERR = None
+            latERR = None
+            status_pub.publish(status)
+            lonERR_pub.publish(lonERR)
+            latERR_pub.publish(latERR)
         elif sol.status == 1:
-            launcher_status = "Hit wall in %.2f s" %sol.t_events[0]
-            launcher_pub.publish(launcher_status)
+            status = True
             impact_position = sol.y[:3,-1]
-            # error calculation assumes the wall is vertical
             position_error = impact_position-target_position
-            lat_error = linalg.norm(position_error[0,0:2])
-            lon_error = position_error[0,2]
+            # error calculation assumes the walsl is vertical
+            lonErr = position_error[0,2]
+            latErr = linalg.norm(position_error[0,0:2])
+            status_pub.publish(status)
+            lonERR_pub.publish(lonERR)
+            latERR_pub.publish(latERR)
 
 if __name__ == '__main__':
     try:
