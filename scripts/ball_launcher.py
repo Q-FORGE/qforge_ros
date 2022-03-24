@@ -3,11 +3,8 @@
 # Subscribes to 
 
 import rospy
-from std_msgs.msg import String
-from std_msgs.msg import Bool
-from std_msgs.msg import Float64
+from std_msgs.msg import String,Bool,Float64,Float32
 from nav_msgs.msg import Odometry
-
 from numpy import NaN, array,append,linalg
 from math import pi
 from scipy.integrate import solve_ivp
@@ -55,6 +52,9 @@ def launcher():
     # Ball position and velocity for debugging
     ball_pub = rospy.Publisher('Launcher_ball', String, queue_size=1)
 
+    # publish to magnet gain for testing
+    magnet_pub = rospy.Publisher('/red/uav_magnet/gain', Float32, queue_size=1,latch=True)
+
     rospy.init_node('launcher')
     rospy.Rate(launcher_rate)
 
@@ -79,6 +79,8 @@ def launcher():
             # error calculation assumes the wall is vertical
             lonERR = position_error[0,2]
             latERR = linalg.norm(position_error[0,0:2])
+            if abs(lonERR) <= 0.5:
+                magnet_pub.publish(0.0)
     
         status_pub.publish(status)
         lonERR_pub.publish(lonERR)
