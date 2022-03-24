@@ -8,7 +8,7 @@ from std_msgs.msg import Bool
 from std_msgs.msg import Float64
 from nav_msgs.msg import Odometry
 
-from numpy import array,append,linalg
+from numpy import NaN, array,append,linalg
 from math import pi
 from scipy.integrate import solve_ivp
 from scipy.spatial.transform import Rotation as R
@@ -70,8 +70,8 @@ def launcher():
         if sol.status == 0:
             # IVP solver reaches the end time without triggering hit_wall event
             status = False
-            lonERR = 99
-            latERR = 99
+            lonERR = NaN
+            latERR = NaN
         elif sol.status == 1:
             status = True
             impact_position = sol.y[:3,-1]
