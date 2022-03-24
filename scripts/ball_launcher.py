@@ -4,8 +4,8 @@
 
 import rospy
 from std_msgs.msg import String
-#from std_msgs.msg import Bool
-#from std_msgs.msg import Int16
+from std_msgs.msg import Bool
+from std_msgs.msg import Int16
 from nav_msgs.msg import Odometry
 
 from numpy import array,append,linalg
@@ -17,8 +17,8 @@ from scipy.spatial.transform import Rotation as R
 launcher_rate = rospy.get_param('launcher_rate',10)
 
 # mavros uses ENU convention
-target_position = array([[0,0,0]])
-wall_normal = array([[0,-1,0]])
+target_position = array([[12.5,-3,2]])
+wall_normal = array([[-1,0,0]])
 position = array([[0,-5,5]])
 velocity = array([[0,0,0]])
 
@@ -47,8 +47,8 @@ def odometry_callback(msg):
     velocity = r.apply([[msg.twist.twist.linear.x,msg.twist.twist.linear.y,msg.twist.twist.linear.z]])
 
 def launcher():
-    launcher_pub = rospy.Publisher('launcher_status', String)
-    ball_pub = rospy.Publisher('ball_status', String)
+    launcher_pub = rospy.Publisher('launcher_status', String, queue_size=1)
+    ball_pub = rospy.Publisher('ball_status', String, queue_size=1)
     rospy.init_node('launcher')
     rate = rospy.Rate(launcher_rate)
 
@@ -57,10 +57,10 @@ def launcher():
         #/red/ball/position geometry_msgs/PointStamped
         #/red/ball/velocity_relative geometry_msgs/TwistStamped
         #/red/velocity_relative geometry_msgs/TwistStamped
-        rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback)
+        rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback, queue_size=1, buff_size=2**24)
 
         x0 = append(position,velocity)
-        ball_status = "position = [%.2f,%2f,%2f], velocity = [%.2f,%2f,%2f]" %x0[0],x0[1],x0[2],x0[3],x0[4],x0[5]
+        ball_status = "position = [%.2f,%.2f,%.2f], velocity = [%.2f,%.2f,%.2f]" %(x0[0],x0[1],x0[2],x0[3],x0[4],x0[5])
         ball_pub.publish(ball_status)
 
         sol = solve_ivp(xdot, [0,t_end], x0, method='RK45', events=hit_wall)
