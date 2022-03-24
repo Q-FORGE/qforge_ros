@@ -19,8 +19,8 @@ launcher_rate = rospy.get_param('launcher_rate',10)
 # mavros uses ENU convention
 target_position = array([[0,0,0]])
 wall_normal = array([[0,-1,0]])
-# position = array([[0,0,5]])
-# velocity = array([[0,0,0]])
+position = array([[0,-5,5]])
+velocity = array([[0,0,0]])
 
 m = 0.3 # [kg] mass
 r = 0.1 # [m] radius
@@ -45,10 +45,10 @@ def odometry_callback(msg):
     position = array([[msg.pose.pose.position.x,msg.pose.pose.position.y,msg.pose.pose.position.z]])
     r = R.from_quat([msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z,msg.pose.pose.orientation.w])
     velocity = r.apply([[msg.twist.twist.linear.x,msg.twist.twist.linear.y,msg.twist.twist.linear.z]])
-    rospy.loginfo("\nPosition =",position,"\nVelocity =",velocity)
 
 def launcher():
-    launcher_pub = rospy.Publisher('launcher_status', String, queue_size=10)
+    launcher_pub = rospy.Publisher('launcher_status', String)
+    ball_pub = rospy.Publisher('ball_status', String)
     rospy.init_node('launcher')
     rate = rospy.Rate(launcher_rate)
 
@@ -60,6 +60,8 @@ def launcher():
         rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback)
 
         x0 = append(position,velocity)
+        ball_status = "position = [%.2f,%2f,%2f], velocity = [%.2f,%2f,%2f]" %x0[0],x0[1],x0[2],x0[3],x0[4],x0[5]
+        ball_pub.publish(ball_status)
 
         sol = solve_ivp(xdot, [0,t_end], x0, method='RK45', events=hit_wall)
 
