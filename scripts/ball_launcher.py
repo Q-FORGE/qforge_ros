@@ -41,14 +41,11 @@ hit_wall.terminal = True
 hit_wall.direction = -1
 
 def odometry_callback(msg):
-    global position
-    global velocity
-
+    global position,velocity
     position = array([[msg.pose.pose.position.x,msg.pose.pose.position.y,msg.pose.pose.position.z]])
     r = R.from_quat([msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z,msg.pose.pose.orientation.w])
     velocity = r.apply([[msg.twist.twist.linear.x,msg.twist.twist.linear.y,msg.twist.twist.linear.z]])
-    rospy.loginfo(position)
-    rospy.loginfo(velocity)
+    rospy.loginfo("\nPosition =",position,"\nVelocity =",velocity)
 
 def launcher():
     launcher_pub = rospy.Publisher('launcher_status', String, queue_size=10)
