@@ -14,7 +14,7 @@ from scipy.integrate import solve_ivp
 from scipy.spatial.transform import Rotation as R
 
 # Fetch node rate parameter
-launcher_rate = rospy.get_param('launcher_rate',60)
+launcher_rate = rospy.get_param('launcher_rate',10)
 
 # mavros uses ENU convention
 target_position = array([[12.5,-3,2]])
@@ -51,15 +51,15 @@ def launcher():
     status_pub = rospy.Publisher('Launcher_status', Bool, queue_size=1)
     # If so, what are the errors between the impact point and the target
     lonERR_pub = rospy.Publisher('Launcher_lonERR', Float64, queue_size=1)
-    latERR_pub  = rospy.Publisher('Launcher_latERR', Float64, queue_size=1)
+    latERR_pub = rospy.Publisher('Launcher_latERR', Float64, queue_size=1)
     # Ball position and velocity for debugging
     ball_pub = rospy.Publisher('Launcher_ball', String, queue_size=1)
 
     rospy.init_node('launcher')
-    rate = rospy.Rate(launcher_rate)
+    rospy.Rate(launcher_rate)
 
     while not rospy.is_shutdown():
-        rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback, queue_size=1, buff_size=2**10)
+        rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback, queue_size=1, buff_size=2**24)
 
         x0 = append(position,velocity)
         ball = "position = [%.2f,%.2f,%.2f], velocity = [%.2f,%.2f,%.2f]" %(x0[0],x0[1],x0[2],x0[3],x0[4],x0[5])
@@ -70,21 +70,19 @@ def launcher():
         if sol.status == 0:
             # IVP solver reaches the end time without triggering hit_wall event
             status = False
-            lonERR = None
-            latERR = None
-            status_pub.publish(status)
-            lonERR_pub.publish(lonERR)
-            latERR_pub.publish(latERR)
+            lonERR = 99
+            latERR = 99
         elif sol.status == 1:
             status = True
             impact_position = sol.y[:3,-1]
             position_error = impact_position-target_position
-            # error calculation assumes the walsl is vertical
-            lonErr = position_error[0,2]
-            latErr = linalg.norm(position_error[0,0:2])
-            status_pub.publish(status)
-            lonERR_pub.publish(lonERR)
-            latERR_pub.publish(latERR)
+            # error calculation assumes the wall is vertical
+            lonERR = position_error[0,2]
+            latERR = linalg.norm(position_error[0,0:2])
+    
+        status_pub.publish(status)
+        lonERR_pub.publish(lonERR)
+        latERR_pub.publish(latERR)
 
 if __name__ == '__main__':
     try:
