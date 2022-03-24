@@ -11,15 +11,16 @@ from nav_msgs.msg import Odometry
 from numpy import array,append,linalg
 from math import pi
 from scipy.integrate import solve_ivp
+from scipy.spatial.transform import Rotation as R
 
 # Fetch node rate parameter
 launcher_rate = rospy.get_param('launcher_rate',10)
 
 # mavros uses ENU convention
-target_position = array([[0,5,5]])
+target_position = array([[0,0,0]])
 wall_normal = array([[0,-1,0]])
-position = array([[0,0,5]])
-velocity = array([[0,0,0]])
+# position = array([[0,0,5]])
+# velocity = array([[0,0,0]])
 
 m = 0.3 # [kg] mass
 r = 0.1 # [m] radius
@@ -30,7 +31,6 @@ g = -9.81 # [m/s^2]
 t_end = 20 # searching period
 
 # initial ball status
-x0 = append(position,velocity)
 def xdot(t,x):
     return append(x[3:6],[0,0,g])-(linalg.norm(x[3:6])*Cd*rho*A/2/m)*append([0,0,0],x[3:6])
 
@@ -41,10 +41,14 @@ hit_wall.terminal = True
 hit_wall.direction = -1
 
 def odometry_callback(msg):
-    quat=msg.Odometry.pose.pose.orientation
-    rospy.loginfo(quat)
+    global position
+    global velocity
 
-
+    position = array([[msg.pose.pose.position.x,msg.pose.pose.position.y,msg.pose.pose.position.z]])
+    r = R.from_quat([msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z,msg.pose.pose.orientation.w])
+    velocity = r.apply([[msg.twist.twist.linear.x,msg.twist.twist.linear.y,msg.twist.twist.linear.z]])
+    rospy.loginfo(position)
+    rospy.loginfo(velocity)
 
 def launcher():
     launcher_pub = rospy.Publisher('launcher_status', String, queue_size=10)
@@ -57,6 +61,8 @@ def launcher():
         #/red/ball/velocity_relative geometry_msgs/TwistStamped
         #/red/velocity_relative geometry_msgs/TwistStamped
         rospy.Subscriber("/red/ball/odometry", Odometry, odometry_callback)
+
+        x0 = append(position,velocity)
 
         sol = solve_ivp(xdot, [0,t_end], x0, method='RK45', events=hit_wall)
 
