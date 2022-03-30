@@ -8,7 +8,7 @@
 import rospy
 from std_msgs.msg import Bool
 from std_msgs.msg import Int16
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from nav_msgs.msg import Odometry
 
 # Fetch node rate parameter
 monitor_rate = rospy.get_param('monitor_rate', 5)
@@ -25,7 +25,7 @@ def pose_callback(msg):
     global alt_state
     global current_zone
 
-    height = msg.PoseWithCovariance.pose.position.z
+    height = msg.pose.pose.position.z
 
     if ((height < min_height) or (height > max_height)):
         alt_state = False
@@ -45,7 +45,7 @@ def state_monitor():
     zone_pub = rospy.Publisher('current_zone', Int16, queue_size = 1)
 
     # Define pose subscriber
-    pose_sub = rospy.Subscriber('mavros/global_position/local',PoseWithCovarianceStamped,pose_callback)
+    pose_sub = rospy.Subscriber('mavros/global_position/local',Odometry,pose_callback)
 
     while not rospy.is_shutdown():
 
@@ -58,12 +58,3 @@ if __name__ == '__main__':
         state_monitor()
     except rospy.ROSInterruptException:
         pass
-
-
-
-
-
-
-
-
-
