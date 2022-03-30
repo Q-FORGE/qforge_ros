@@ -3,7 +3,7 @@
 # State monitor node for qforge_ros package
 # Publishes Int16 current zone to 'current_zone'
 # Publishes Bool altitude warning at 'alt_state'
-# Subscribes to PoseWithCovarianceStamped vehicle position at 'mavros/global_position/local'
+# Subscribes to Odometry vehicle position at 'mavros/global_position/local'
 
 import rospy
 from std_msgs.msg import Bool
