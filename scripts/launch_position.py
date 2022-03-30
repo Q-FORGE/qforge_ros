@@ -13,7 +13,7 @@ from qforge_ros.srv import LaunchPosition
 
 from __future__ import print_function
 
-def calaulate_launch_position(req):
+def calculate_launch_position(req):
     pos = array([[req.target_position.x,req.target_position.y,req.target_position.z]])
     vec = array([[req.wall_normal.x,req.wall_normal.y,req.wall_normal.z]])
     test = "position = [%.2f,%.2f,%.2f], vector = [%.2f,%.2f,%.2f]" %(pos[0],pos[1],pos[2],vec[0],vec[1],vec[2])
@@ -26,7 +26,7 @@ def calaulate_launch_position(req):
 
 def launch_position_server():
     rospy.init_node('launch_position_server')
-    s = rospy.Service('launch_position', LaunchPosition, calaulate_launch_position)
+    s = rospy.Service('launch_position', LaunchPosition, calculate_launch_position)
     rospy.spin()
 
 if __name__ == "__main__":
