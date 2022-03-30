@@ -9,7 +9,7 @@
 from __future__ import print_function
 
 import rospy
-from numpy import array, arccos,linalg
+from numpy import array, arctan2,linalg
 from scipy.spatial.transform import Rotation as R
 from math import pi
 from geometry_msgs.msg import Transform
@@ -29,14 +29,14 @@ def calculate_launch_position(req):
     start_transform.translation.x = start_position[0]
     start_transform.translation.y = start_position[1]
     start_transform.translation.z = start_position[2]
-    psi = arccos((-wall_normal)@array([1,0,0]).T)
+    psi = arctan2(-wall_normal[1],-wall_normal[0])
     print(psi*180/pi)
     r = R.from_euler('z', [psi])
     quat = r.as_quat()
-    start_transform.rotation.x = quat[0]
-    start_transform.rotation.y = quat[1]
-    start_transform.rotation.z = quat[2]
-    start_transform.rotation.w = quat[3]
+    start_transform.rotation.x = quat[0,0]
+    start_transform.rotation.y = quat[0,1]
+    start_transform.rotation.z = quat[0,2]
+    start_transform.rotation.w = quat[0,3]
     return start_transform
 
 def launch_position_server():
