@@ -16,7 +16,7 @@ from std_msgs.msg import Int16
 commander_rate = rospy.get_param('commander_rate',5)
 
 # Initialize state parameters
-state = 'Landed'
+state = 'takeoff'
 emergency_status = False
 alt_state = False
 ar_lock = False
@@ -41,23 +41,28 @@ def commander():
 
         # Check if vehicle is in an emergency state
         if not emergency_status:
-            # Check if vehicle is within altitude bounds
-            if alt_state:
-                # Decide on state based on current zone
-                if current_zone == 1:
-                    state = 'trans_12'
-                elif current_zone == 2:
-                    state = 'trans_23'
-                elif current_zone == 3:
-                    # Switch to Task 3 if tag found, Task 2 if not.
-                    if not ar_lock:
-                        state = 'ar_search'
+            # Check if vehicle has completed takeoff
+            if not state == 'takeoff':
+                # Check if vehicle is within altitude bounds
+                if alt_state:
+                    # Decide on state based on current zone
+                    if current_zone == 1:
+                        state = 'trans_12'
+                    elif current_zone == 2:
+                        state = 'trans_23'
+                    elif current_zone == 3:
+                        # Switch to Task 3 if tag found, Task 2 if not.
+                        if not ar_lock:
+                            state = 'ar_search'
+                        else:
+                            state = 'ball_drop'
                     else:
-                        state = 'ball_drop'
+                        state = 'error'
                 else:
-                    state = 'error'
-            else:
-                state = 'move_to_alt'
+                    state = 'move_to_alt'
+            # Mark takeoff as completed if vehicle moves to altitude
+            elif alt_state:
+                state = 'takeoff_complete'
         else:
             state = 'error'
 
