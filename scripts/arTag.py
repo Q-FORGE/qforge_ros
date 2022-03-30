@@ -10,6 +10,7 @@ import numpy as np
 from std_msgs.msg import String
 from std_msgs.msg import Bool
 from std_msgs.msg import Int16
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseStamped
 from qforge_ros.msg import ar_tag_location
@@ -18,7 +19,7 @@ from tf import transformations
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',1e-5)
+Pmin = rospy.get_param('arTag_lock_lim',1e-1)
 
 class quat:
     def __init__(self,q):
@@ -76,7 +77,9 @@ def arTag():
         rtc[1] = data.y
         rtc[2] = data.z
 
-        data2 = rospy.wait_for_message('/red/pose', PoseStamped)
+        data2p = rospy.wait_for_message('/red/odometry', Odometry)
+        data2 = data2p.pose
+        
         q[0] = data2.pose.orientation.w
         q[1] = data2.pose.orientation.x
         q[2] = data2.pose.orientation.y
