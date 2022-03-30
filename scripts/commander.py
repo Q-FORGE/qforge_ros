@@ -29,6 +29,8 @@ def alt_callback(msg):
 
 def commander():
 
+    global state
+
     # Initialize node
     rospy.init_node('commander')
     rate = rospy.Rate(commander_rate)
