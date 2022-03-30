@@ -12,11 +12,13 @@ from std_msgs.msg import Bool
 from std_msgs.msg import Int16
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseStamped
+from qforge_ros.msg import ar_tag_location
 from tf.transformations import quaternion_matrix
 from tf import transformations
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
+Pmin = rospy.get_param('arTag_lock_lim',1e-5)
 
 class quat:
     def __init__(self,q):
@@ -46,7 +48,7 @@ def arTag():
     rate = rospy.Rate(arTag_rate)
 
     # Define tag estimate publisher
-    tag_pub = rospy.Publisher('ar_tag_est', Point, queue_size = 1)
+    tag_pub = rospy.Publisher('ar_tag_est', ar_tag_location, queue_size = 1)
 
     Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
     R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance 
@@ -98,10 +100,18 @@ def arTag():
         P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
         print(P)
         
-        msg = Point()
-        msg.x = x_kk[0]
-        msg.y = x_kk[1]
-        msg.z = x_kk[2]
+        msg = ar_tag_location()
+        msg.position.x = x_kk[0]
+        msg.position.y = x_kk[1]
+        msg.position.z = x_kk[2]
+        msg.normal.x = 1
+        msg.normal.y = 0
+        msg.normal.z = 0
+
+        if np.linalg.det(P) < Pmin:
+            msg.lock = True
+        else:
+            msg.lock = False
 
         tag_pub.publish(msg)
             
