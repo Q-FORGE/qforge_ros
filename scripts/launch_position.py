@@ -8,20 +8,26 @@
 
 import rospy
 from numpy import array
+from scipy.spatial.transform import Rotation as R
 from geometry_msgs.msg import Transform
 from qforge_ros.srv import LaunchPosition
 
 from __future__ import print_function
 
+x_offset = 10
+z_offset = 5
+
 def calaulate_launch_position(req):
-    pos = array([[req.target_position.x,req.target_position.y,req.target_position.z]])
-    vec = array([[req.wall_normal.x,req.wall_normal.y,req.wall_normal.z]])
-    test = "position = [%.2f,%.2f,%.2f], vector = [%.2f,%.2f,%.2f]" %(pos[0],pos[1],pos[2],vec[0],vec[1],vec[2])
-    print(test)
+    target_position = array([req.target_position.x,req.target_position.y,req.target_position.z])
+    wall_normal = array([req.wall_normal.x,req.wall_normal.y,req.wall_normal.z])
+    received = "target position = [%.2f,%.2f,%.2f], wall normal vector = [%.2f,%.2f,%.2f]" \
+        %(target_position[0],target_position[1],target_position[2],wall_normal[0],wall_normal[1],wall_normal[2])
+    print(received)
     start_transform = Transform()
-    start_transform.translation.x = 0
-    start_transform.translation.y = -3
-    start_transform.translation.z = 5
+    start_position = target_position + x_offset*wall_normal + z_offset*array([0,0,1])
+    start_transform.translation.x = start_position[0]
+    start_transform.translation.y = start_position[1]
+    start_transform.translation.z = start_position[2]
     return start_transform
 
 def launch_position_server():
