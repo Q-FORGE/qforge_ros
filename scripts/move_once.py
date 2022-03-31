@@ -42,7 +42,7 @@ def sweeper():
     pose_sub = rospy.Subscriber('mavros/global_position/local', Odometry, pose_callback)
 
     # Define target waypoint publisher
-    target_pub = rospy.Publisher('tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
+    target_pub = rospy.Publisher('/red/tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
 
     # Initialize publishing variables
     last_msg = rospy.Time.now()
