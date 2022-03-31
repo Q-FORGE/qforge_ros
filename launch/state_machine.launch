@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="commander" pkg="qforge_ros" type="commander.py"/>
+  <node name="state_monitor" pkg="qforge_ros" type="state_monitor.py"/>
+</launch>
