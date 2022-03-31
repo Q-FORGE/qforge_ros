@@ -61,7 +61,7 @@ def sweeper():
     while not rospy.is_shutdown():
         now = rospy.Time.now()        
         rospy.Subscriber('mavros/global_position/local', Odometry, pose_callback)
-        vehicle_position = array([current_pose.pose.x,current_pose.pose.y,current_pose.pose.z])
+        vehicle_position = array([current_pose.pose.position.x,current_pose.pose.position.y,current_pose.position.pose.z])
 
         if sweep_status == 0:                
             setpoint_pose.pose.position.x = zone2_init[0]
