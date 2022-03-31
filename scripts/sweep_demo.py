@@ -85,8 +85,8 @@ def sweeper():
             reference_position = array([setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z])
 
 
-            if (now.secs - last_msg.secs > 2.):
-                publish_target = True 
+        if (now.secs - last_msg.secs > 2.):
+            publish_target = True 
             
 
         
