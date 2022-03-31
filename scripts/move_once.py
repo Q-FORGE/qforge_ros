@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# ball launcher for qforge_ros package
+# move once for qforge_ros package
 # Subscribes to 
 
 import rospy
@@ -41,8 +41,8 @@ def test_position_command():
     global setpoint_pose
 
     # Initialize node
-    rospy.init_node('tst')
-    rate = rospy.Rate(tester_rate)
+    rospy.init_node('test_position_command')
+    rospy.Rate(tester_rate)
 
     # Define vehicle state and camera subscribers
     pose_sub = rospy.Subscriber('mavros/global_position/local', Odometry, pose_callback)
@@ -63,4 +63,9 @@ def test_position_command():
         publish_target = False
         last_msg = rospy.Time.now()
 
-    rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        test_position_command()
+    except rospy.ROSInterruptException:
+        pass
