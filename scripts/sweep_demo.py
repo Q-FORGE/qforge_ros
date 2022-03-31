@@ -69,8 +69,8 @@ def sweeper():
             setpoint_pose.pose.position.z = altitudes[0]
             reference_position = array([setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z])
             position_error = vehicle_position-reference_position
-            error_mag = linalg.norm(position_error)
-            if error_mag < 0.2:
+            error_mag = linalg.norm(position_error[0:3])
+            if error_mag < 1:
                 sweep_status = 1
             
         elif sweep_status == 1:
