@@ -53,6 +53,10 @@ def sweeper():
     # Define target waypoint publisher
     target_pub = rospy.Publisher('/red/tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
 
+    # Vehicle position and position error for debugging
+    debug_pub = rospy.Publisher('Sweeper_debug', String, queue_size=1)
+
+
     # Initialize publishing variables
     publish_target = False
     last_msg = rospy.Time.now()
@@ -83,6 +87,13 @@ def sweeper():
             setpoint_pose.pose.orientation.w = 0.7071  
 
             reference_position = array([setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z])
+            position_error = vehicle_position-reference_position
+            error_mag = linalg.norm(position_error[0:3])
+        
+        
+        x0 = append(vehicle_position,position_error,error_mag)
+        dbg_string = "position = [%.2f,%.2f,%.2f], error = [%.2f,%.2f,%.2f], error_mag = %.2f" %(x0[0],x0[1],x0[2],x0[3],x0[4],x0[5],x0[6])
+        debug_pub.publish(dbg_string)
 
 
         if (now.secs - last_msg.secs > 2.):
