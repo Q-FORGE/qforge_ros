@@ -94,6 +94,7 @@ def sweeper():
             if error_mag < 1:
                 step_counter += 1
                 if setpoint_pose.pose.position.x >= corners[1] [0]:
+                    setpoint_pose.pose.position.x = corners[1] [0]
                     step_counter = 0
                     sweep_status = 2
 
@@ -113,6 +114,7 @@ def sweeper():
             if error_mag < 1:
                 step_counter += 1
                 if setpoint_pose.pose.position.y <= corners[2] [1]:
+                    setpoint_pose.pose.position.y = corners[2] [1]
                     step_counter = 0
                     sweep_status = 3
 
@@ -132,6 +134,7 @@ def sweeper():
             if error_mag < 1:
                 step_counter += 1
                 if setpoint_pose.pose.position.x <= corners[3] [0]:
+                    setpoint_pose.pose.position.x = corners[3] [0]
                     step_counter = 0
                     sweep_status = 4
                     altitude_counter += 1 
@@ -151,6 +154,7 @@ def sweeper():
             if error_mag < 1:
                 step_counter += 1
                 if setpoint_pose.pose.position.x >= corners[2] [0]:
+                    setpoint_pose.pose.position.x = corners[2] [0]
                     step_counter = 0
                     sweep_status = 5
 
@@ -169,6 +173,7 @@ def sweeper():
             if error_mag < 1:
                 step_counter += 1
                 if setpoint_pose.pose.position.y >= corners[1] [1]:
+                    setpoint_pose.pose.position.y = corners[1] [1]
                     step_counter = 0
                     sweep_status = 6
 
@@ -188,6 +193,7 @@ def sweeper():
             if error_mag < 1:
                 step_counter += 1
                 if setpoint_pose.pose.position.x <= corners[0] [0]:
+                    setpoint_pose.pose.position.x = corners[0] [0]
                     step_counter = 0
                     sweep_status = 7
 
