@@ -45,6 +45,7 @@ def sweeper():
     target_pub = rospy.Publisher('/red/tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
 
     # Initialize publishing variables
+    publish_target = False
     last_msg = rospy.Time.now()
 
     while not rospy.is_shutdown():
