@@ -12,7 +12,7 @@ from scipy.spatial.transform import Rotation as R
 from geometry_msgs.msg import PoseStamped
 
 # Fetch node rate parameter
-tester_rate = rospy.get_param('tester_rate',10)
+sweeper_rate = rospy.get_param('sweeper_rate',10)
 
 # Initialize variables
 setpoint_pose = PoseStamped()
@@ -21,8 +21,8 @@ current_pose = PoseStamped()
 # Define zone 2 setpoint
 zone2_pose = PoseStamped()
 zone2_pose.pose.position.x = -2
-zone2_pose.pose.position.y = 0
-zone2_pose.pose.position.z = 3
+zone2_pose.pose.position.y = 0.5
+zone2_pose.pose.position.z = 7
 
 def pose_callback(msg):
     # Update current pose from mavros local position
@@ -30,19 +30,13 @@ def pose_callback(msg):
     current_pose.pose = msg.pose.pose
     current_pose.header = msg.header
 
-def state_callback(msg):
-    # Fetch most recent state from commander
-    global state
-    state = msg
+def sweeper():
 
-def test_position_command():
-
-    global state
     global setpoint_pose
 
     # Initialize node
-    rospy.init_node('test_position_command')
-    rospy.Rate(tester_rate)
+    rospy.init_node('sweeper')
+    rospy.Rate(sweeper_rate)
 
     # Define vehicle state and camera subscribers
     pose_sub = rospy.Subscriber('mavros/global_position/local', Odometry, pose_callback)
@@ -51,7 +45,6 @@ def test_position_command():
     target_pub = rospy.Publisher('tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
 
     # Initialize publishing variables
-    publish_target = False
     last_msg = rospy.Time.now()
 
     setpoint_pose = zone2_pose
@@ -66,6 +59,6 @@ def test_position_command():
 
 if __name__ == '__main__':
     try:
-        test_position_command()
+        sweeper()
     except rospy.ROSInterruptException:
         pass
