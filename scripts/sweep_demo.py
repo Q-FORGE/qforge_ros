@@ -77,6 +77,11 @@ def sweeper():
             setpoint_pose.pose.position.x = corners[0,0]
             setpoint_pose.pose.position.y = corners[0,1]
             setpoint_pose.pose.position.z = altitudes[0]
+            setpoint_pose.pose.orientation.x = 0
+            setpoint_pose.pose.orientation.y = 0
+            setpoint_pose.pose.orientation.z = 0.7071
+            setpoint_pose.pose.orientation.w = 0.7071  
+
             reference_position = array([setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z])
 
 
