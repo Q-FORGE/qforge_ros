@@ -36,7 +36,7 @@ def sweeper():
 
     # Initialize node
     rospy.init_node('sweeper')
-    rospy.Rate(sweeper_rate)
+    rate = rospy.Rate(sweeper_rate)
 
     # Define vehicle state and camera subscribers
     pose_sub = rospy.Subscriber('mavros/global_position/local', Odometry, pose_callback)
@@ -47,14 +47,19 @@ def sweeper():
     # Initialize publishing variables
     last_msg = rospy.Time.now()
 
-    setpoint_pose = zone2_pose
-    publish_target = True
+    while not rospy.is_shutdown():
+        now = rospy.Time.now()
+        setpoint_pose = zone2_pose
+        if (now.secs - last_msg.secs > 0.5):
+                publish_target = True
 
         
-    if publish_target:
-        target_pub.publish(setpoint_pose)
-        publish_target = False
-        last_msg = rospy.Time.now()
+        if publish_target:
+            target_pub.publish(setpoint_pose)
+            publish_target = False
+            last_msg = rospy.Time.now()
+
+        rate.sleep()
 
 
 if __name__ == '__main__':
