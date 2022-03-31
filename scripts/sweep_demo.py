@@ -20,7 +20,7 @@ current_pose = PoseStamped()
 
 # Define zone initial point, corners, and search altitudes array (no altitude)
 zone2_init = [1,0] 
-corners = [[1.5,5], [9.5,5], [9.5,-5],[1.5,-5]]
+corners = [[2,4.5], [9,4.5], [9,-4.5],[2,-4.5]]
 altitudes = [2, 5, 8]
 
 
@@ -45,9 +45,10 @@ def sweeper():
     rate = rospy.Rate(sweeper_rate)
     
     altitude_counter = 0
-    setpoint_step = 3
+    setpoint_step = 4
     sweep_status = 0
     step_counter = 0
+    error_tolerance = 0.8
 
     # Define vehicle position subscriber
     pose_sub = rospy.Subscriber('/red/odometry', Odometry, pose_callback)
@@ -76,7 +77,7 @@ def sweeper():
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 sweep_status = 1
             
         elif sweep_status == 1:
@@ -88,13 +89,15 @@ def sweeper():
             setpoint_pose.pose.orientation.z = 0.7071
             setpoint_pose.pose.orientation.w = 0.7071  
 
+            if setpoint_pose.pose.position.x >= corners[1] [0]:
+                setpoint_pose.pose.position.x = corners[1] [0]
+
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 step_counter += 1
-                if setpoint_pose.pose.position.x >= corners[1] [0]:
-                    setpoint_pose.pose.position.x = corners[1] [0]
+                if setpoint_pose.pose.position.x == corners[1] [0]:
                     step_counter = 0
                     sweep_status = 2
 
@@ -107,14 +110,15 @@ def sweeper():
             setpoint_pose.pose.orientation.y = 0
             setpoint_pose.pose.orientation.z = 0
             setpoint_pose.pose.orientation.w = 0  
+            if setpoint_pose.pose.position.y <= corners[2] [1]:
+                setpoint_pose.pose.position.y = corners[2] [1]
 
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 step_counter += 1
-                if setpoint_pose.pose.position.y <= corners[2] [1]:
-                    setpoint_pose.pose.position.y = corners[2] [1]
+                if setpoint_pose.pose.position.y == corners[2] [1]:
                     step_counter = 0
                     sweep_status = 3
 
@@ -127,14 +131,15 @@ def sweeper():
             setpoint_pose.pose.orientation.y = 0
             setpoint_pose.pose.orientation.z = -0.7071
             setpoint_pose.pose.orientation.w = 0.7071  
+            if setpoint_pose.pose.position.x <= corners[3] [0]:
+                setpoint_pose.pose.position.x = corners[3] [0]
 
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 step_counter += 1
-                if setpoint_pose.pose.position.x <= corners[3] [0]:
-                    setpoint_pose.pose.position.x = corners[3] [0]
+                if setpoint_pose.pose.position.x == corners[3] [0]:
                     step_counter = 0
                     sweep_status = 4
                     altitude_counter += 1 
@@ -147,14 +152,15 @@ def sweeper():
             setpoint_pose.pose.orientation.y = 0
             setpoint_pose.pose.orientation.z = -0.7071
             setpoint_pose.pose.orientation.w = 0.7071  
+            if setpoint_pose.pose.position.x >= corners[2] [0]:
+                setpoint_pose.pose.position.x = corners[2] [0]
 
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 step_counter += 1
-                if setpoint_pose.pose.position.x >= corners[2] [0]:
-                    setpoint_pose.pose.position.x = corners[2] [0]
+                if setpoint_pose.pose.position.x == corners[2] [0]:
                     step_counter = 0
                     sweep_status = 5
 
@@ -166,14 +172,15 @@ def sweeper():
             setpoint_pose.pose.orientation.y = 0
             setpoint_pose.pose.orientation.z = 0
             setpoint_pose.pose.orientation.w = 0  
+            if setpoint_pose.pose.position.y >= corners[1] [1]:
+                setpoint_pose.pose.position.y = corners[1] [1]
 
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 step_counter += 1
-                if setpoint_pose.pose.position.y >= corners[1] [1]:
-                    setpoint_pose.pose.position.y = corners[1] [1]
+                if setpoint_pose.pose.position.y == corners[1] [1]:
                     step_counter = 0
                     sweep_status = 6
 
@@ -186,14 +193,15 @@ def sweeper():
             setpoint_pose.pose.orientation.y = 0
             setpoint_pose.pose.orientation.z = 0.7071
             setpoint_pose.pose.orientation.w = 0.7071  
+            if setpoint_pose.pose.position.x <= corners[0] [0]:
+                setpoint_pose.pose.position.x = corners[0] [0]
 
             reference_position = array([[setpoint_pose.pose.position.x,setpoint_pose.pose.position.y,setpoint_pose.pose.position.z]])
             position_error = vehicle_position-reference_position
             error_mag = linalg.norm(position_error[0,0:3])
-            if error_mag < 1:
+            if error_mag < error_tolerance:
                 step_counter += 1
-                if setpoint_pose.pose.position.x <= corners[0] [0]:
-                    setpoint_pose.pose.position.x = corners[0] [0]
+                if setpoint_pose.pose.position.x == corners[0] [0]:
                     step_counter = 0
                     sweep_status = 7
 
