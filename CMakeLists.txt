@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   icuas22_competition
   message_generation
+  trajectory_msgs
 )
 
 ## System dependencies are found with CMake's conventions
