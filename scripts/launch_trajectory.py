@@ -79,10 +79,14 @@ def calculate_launch_trajectory(req):
     
     return response
 
-def launch_position_server():
-    rospy.init_node('launch_position_server')
+def launch_trajectory_server():
+    rospy.init_node('launch_trajectory_server')
     s = rospy.Service('launch_trajectory', LaunchTrajectory, calculate_launch_trajectory)
     rospy.spin()
 
 if __name__ == "__main__":
-    launch_position_server()
+    try:
+        launch_trajectory_server()
+    except rospy.ROSInterruptException:
+        pass
+    

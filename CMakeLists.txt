@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   icuas22_competition
   message_generation
   trajectory_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -61,6 +62,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES  
   LaunchTrajectory.srv
+  LaunchTrigger.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -75,6 +77,7 @@ generate_messages(
   DEPENDENCIES
   geometry_msgs
   trajectory_msgs
+  nav_msgs
 )
 
 ################################################
