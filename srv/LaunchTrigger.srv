@@ -3,4 +3,4 @@ geometry_msgs/Point target_position
 geometry_msgs/Vector3 wall_normal
 ---
 geometry_msgs/Vector3 error
-Bool trigger
+std_msgs/Bool trigger
