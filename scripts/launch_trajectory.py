@@ -7,12 +7,10 @@
 #   start_transform = geometry_msgs/Transform: position and orientation of the drone to start launch operation 
 
 from __future__ import print_function
-from gettext import translation
 
 import rospy
-#from numpy import array, arctan2, linalg, sqrt
 import numpy as np
-from math import pi
+from math import pi, modf
 from scipy.spatial.transform import Rotation as R
 import std_msgs.msg
 from geometry_msgs.msg import Transform,Quaternion,Twist,Vector3
@@ -44,24 +42,32 @@ def calculate_launch_trajectory(req):
     x_m = (a*t_m**2)/2
     # horizontal velocity at release
     u_m = np.sqrt(2*a*x_m)
-
+    t_ready = 5
+    #t_accel = max(w_m,u_m)/a
+    t_accel = 2
+    t_decel = 2
+    
     release_position = (x_offset+x_m)*wall_normal+np.array([target_position[0],target_position[1],z_m+z_offset])
     release_velocity = np.array([u_m,0,w_m])
+
     release_point = MultiDOFJointTrajectoryPoint()
-    release_point.transforms = Transform(translation=Vector3(release_position[0],release_position[1],release_position[2]),\
-        rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))
-    release_point.velocities = Twist(linear=Vector3(release_velocity[0],release_velocity[1],release_velocity[2]),angular=Vector3(0,0,0))
-    release_point.accelerations = Twist(linear=Vector3(a*wall_normal[0],a*wall_normal[1],-a),angular=Vector3(0,0,0))
+    release_point.transforms = [Transform(translation=Vector3(release_position[0],release_position[1],release_position[2]),\
+        rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]
+    release_point.velocities = [Twist(linear=Vector3(release_velocity[0],release_velocity[1],release_velocity[2]),angular=Vector3(0,0,0))]
+    release_point.accelerations = [Twist(linear=Vector3(a*wall_normal[0],a*wall_normal[1],-a),angular=Vector3(0,0,0))]
+    release_point.time_from_start = rospy.Duration.from_sec(t_ready+t_accel)
 
     start_position = release_position + 4*wall_normal - 2*np.array([0,0,1])
     start_point = MultiDOFJointTrajectoryPoint()
-    start_point.transforms = Transform(translation=Vector3(start_position[0],start_position[1],start_position[2]),\
-        rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))
+    start_point.transforms = [Transform(translation=Vector3(start_position[0],start_position[1],start_position[2]),\
+        rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]   
+    start_point.time_from_start = rospy.Duration.from_sec(t_ready)
 
     end_position = release_position+np.array([-u_m/(2*a),0,w_m/(2*a)])
     end_point = MultiDOFJointTrajectoryPoint()
-    end_point.transforms = Transform(translation=Vector3(end_position[0],end_position[1],end_position[2]),\
-        rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))
+    end_point.transforms = [Transform(translation=Vector3(end_position[0],end_position[1],end_position[2]),\
+        rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]
+    end_point.time_from_start = rospy.Duration.from_sec(t_ready+t_accel+t_decel)
 
     launch_trajectory = MultiDOFJointTrajectory()
     launch_trajectory.points = [start_point,release_point,end_point]
