@@ -59,7 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES  
-  LaunchPosition.srv
+  LaunchTrajectory.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -73,6 +73,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
+  trajectory_msgs
 )
 
 ################################################
