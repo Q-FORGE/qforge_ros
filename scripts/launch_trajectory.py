@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-# service node to determine start position for launch operation
-# input = (target_position,wall_norm)
-#   target_position = geometry_msgs/Point: target position in world frame
-#   wall_norm = geometry_msgs/Point: wall normal vector, must be in the x-y plane
-# output = (start_transform)
-#   start_transform = geometry_msgs/Transform: position and orientation of the drone to start launch operation 
+# service node to determine trajectory for launch operation
 
 from __future__ import print_function
 
@@ -42,10 +37,9 @@ def calculate_launch_trajectory(req):
     x_m = (a*t_m**2)/2
     # horizontal velocity at release
     u_m = np.sqrt(2*a*x_m)
-    t_ready = 5
-    #t_accel = max(w_m,u_m)/a
-    t_accel = 2
-    t_decel = 2
+    t_ready = 10
+    t_accel = 5
+    t_decel = max(w_m,u_m)/a
     
     release_position = (x_offset+x_m)*wall_normal+np.array([target_position[0],target_position[1],z_m+z_offset])
     release_velocity = np.array([u_m,0,w_m])
@@ -63,7 +57,8 @@ def calculate_launch_trajectory(req):
         rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]   
     start_point.time_from_start = rospy.Duration.from_sec(t_ready)
 
-    end_position = release_position+np.array([-u_m/(2*a),0,w_m/(2*a)])
+    #end_position = release_position+np.array([-u_m**2/(2*a),0,w_m**2/(2*a)])
+    end_position = release_position+np.array([0,0,w_m**2/(2*a)])+4*wall_normal
     end_point = MultiDOFJointTrajectoryPoint()
     end_point.transforms = [Transform(translation=Vector3(end_position[0],end_position[1],end_position[2]),\
         rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]

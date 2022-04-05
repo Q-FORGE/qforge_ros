@@ -14,12 +14,11 @@ def launch():
     launch_trajectory = launch_trajectory_handle(Point(12.5,-3,2),Vector3(-1,0,0))
     
     rospy.init_node('launch_test')
-    rospy.Rate(10)
-    
-    trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
 
-    while not rospy.is_shutdown():
-        trajectory_pub.publish(launch_trajectory.trajectory)
+    trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
+    #print(launch_trajectory.trajectory)
+    trajectory_pub.publish(launch_trajectory.trajectory)
+    rospy.sleep(20)
 
 if __name__ == '__main__':
     try:
