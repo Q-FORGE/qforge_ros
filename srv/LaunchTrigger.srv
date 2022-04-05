@@ -1,0 +1,6 @@
+nav_msgs/Odometry odometry
+geometry_msgs/Point target_position
+geometry_msgs/Vector3 wall_normal
+---
+geometry_msgs/Vector3 error
+std_msgs/Bool trigger
