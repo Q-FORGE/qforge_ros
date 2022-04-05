@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # service node to determine delivery error and give release trigger
 
+from __future__ import print_function
+
 import rospy
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+from std_msgs.msg import Bool
 from geometry_msgs.msg import Vector3
 from qforge_ros.srv import LaunchTrigger, LaunchTriggerResponse
 
@@ -20,7 +23,6 @@ def calculate_launch_trigger(req):
         req.odometry.pose.pose.orientation.z,req.odometry.pose.pose.orientation.w])
     ball_velocity = r.apply([[req.odometry.twist.twist.linear.x,req.odometry.twist.twist.linear.y,\
         req.odometry.twist.twist.linear.z]])
-    
     target_position = np.array([[req.target_position.x,req.target_position.y,req.target_position.z]])
     wall_normal = np.array([[req.wall_normal.x,req.wall_normal.y,req.wall_normal.z]])
 
@@ -36,13 +38,13 @@ def calculate_launch_trigger(req):
 
         response.error = Vector3(delivery_error[0,0],delivery_error[0,1],delivery_error[0,2])
         if abs(delivery_error@np.array([[0,0,1]]).T)<lon_tolerance:
-            response.trigger = True
+            response.trigger = Bool(True)
         else:
-            response.trigger = False
+            response.trigger = Bool(False)
     else:
         # does not reach wall in t_end seconds
         response.error = Vector3(np.NaN,np.NaN,np.NaN)
-        response.trigger = False
+        response.trigger = Bool(False)
 
     return response
 
