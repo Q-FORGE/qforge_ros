@@ -13,7 +13,7 @@ from std_msgs.msg import Int16
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseStamped
-from qforge_ros.msg import ar_tag_location
+from qforge_ros.msg import ArTagLocation
 from tf.transformations import quaternion_matrix
 from tf import transformations
 
@@ -41,15 +41,43 @@ class quat:
         self.R[2,1] = 2*(qj*qk + qi*qr)
         self.R[2,2] = 1 - 2*(qi**2 + qj**2)
 
+def getNorm(xt,yt):
+    x1 = 12.5
+    y1 = -7.5
+
+    x2 = 12.5
+    y2 = 7.5
+
+    x3 = 1
+    y3 = 7.5
+
+    x4 = 1
+    y4 = -7.5
+
+    def lineDist(xs,ys,xe,ye,xi,yi):
+        return abs((xe-xs)*(ys-yi) - (xs-xi)*(ye-ys)) / np.sqrt((xe-xs)**2 + (ye-ys)**2)
+
+    d1 = lineDist(x1,y1,x2,x2,xt,yt)
+    d2 = lineDist(x2,y2,x3,x3,xt,yt)
+    d3 = lineDist(x3,y3,x4,x4,xt,yt)
+    d4 = lineDist(x4,y4,x1,x1,xt,yt)
+
+    if d1 <= d2 and d1 <= d3 and d1 <= d4:
+        return [-1,0,0]
+    elif d2 <= d1 and d2 <= d3 and d2 <= d4:
+        return [0,-1,0]
+    elif d3 <= d1 and d3 <= d2 and d3 <= d4:
+        return [1,0,0]
+    elif d4 <= d1 and d4 <= d2 and d4 <= d3:
+        return [0,1,0]
 
 def arTag():
-
     # Initialize node
-    rospy.init_node('arTag')
+    rospy.init_node('ar_tag_estimator')
     rate = rospy.Rate(arTag_rate)
 
     # Define tag estimate publisher
-    tag_pub = rospy.Publisher('ar_tag_est', ar_tag_location, queue_size = 1)
+    tag_pub = rospy.Publisher('ar_tag_est', ArTagLocation, queue_size = 1)
 
     Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
     R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance 
@@ -70,9 +98,12 @@ def arTag():
     rcb = np.array([0.200, 0.000, 0.050])
     x_kk = np.array([0, 0,0]) # initial position
 
+    tagDetect = False
 
+    rospy.loginfo("AR tag estimator started")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message('/ar_point', Point)
+        tagDetect = True
         rtc[0] = data.x
         rtc[1] = data.y
         rtc[2] = data.z
@@ -103,18 +134,20 @@ def arTag():
         P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
         print(P)
         
-        msg = ar_tag_location()
+        msg = ArTagLocation()
         msg.position.x = x_kk[0]
         msg.position.y = x_kk[1]
         msg.position.z = x_kk[2]
-        msg.normal.x = 1
-        msg.normal.y = 0
-        msg.normal.z = 0
+        norm = getNorm(x_kk[0],x_kk[1])
+        msg.normal.x = norm[0]
+        msg.normal.y = norm[1]
+        msg.normal.z = norm[2]
 
         if np.linalg.det(P) < Pmin:
             msg.lock = True
         else:
             msg.lock = False
+        msg.detect = tagDetect
 
         tag_pub.publish(msg)
             
