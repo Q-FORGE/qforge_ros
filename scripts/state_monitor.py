@@ -3,7 +3,7 @@
 # State monitor node for qforge_ros package
 # Publishes Int16 current zone to 'current_zone'
 # Publishes Bool altitude warning at 'alt_state'
-# Subscribes to Odometry vehicle position at 'mavros/global_position/local'
+# Subscribes to Odometry vehicle position at 'odometry'
 
 import rospy
 from std_msgs.msg import Bool
@@ -32,7 +32,7 @@ def pose_callback(msg):
         alt_state = False
     else:
         alt_state = True
-        
+
     if ((x >= -12.5) and (x < -8.)):
         current_zone = 1
     elif ((x >= -8.) and (x < 1.)):
