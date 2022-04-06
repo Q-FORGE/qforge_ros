@@ -26,13 +26,12 @@ def pose_callback(msg):
     global current_zone
 
     height = msg.pose.pose.position.z
+    x = msg.pose.pose.position.x
 
     if ((height < min_height) or (height > max_height)):
         alt_state = False
     else:
         alt_state = True
-
-    current_zone = 1
 
 def state_monitor():
 
@@ -45,7 +44,7 @@ def state_monitor():
     zone_pub = rospy.Publisher('current_zone', Int16, queue_size = 1)
 
     # Define pose subscriber
-    pose_sub = rospy.Subscriber('mavros/global_position/local',Odometry,pose_callback)
+    pose_sub = rospy.Subscriber('odometry',Odometry,pose_callback)
 
     while not rospy.is_shutdown():
 
