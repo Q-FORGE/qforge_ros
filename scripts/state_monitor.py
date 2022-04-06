@@ -32,6 +32,15 @@ def pose_callback(msg):
         alt_state = False
     else:
         alt_state = True
+        
+    if ((x >= -12.5) and (x < -8.)):
+        current_zone = 1
+    elif ((x >= -8.) and (x < 1.)):
+        current_zone = 2
+    elif ((x >= 1.) and (x < 12.5)):
+        current_zone = 3
+    else:
+        current_zone = -1
 
 def state_monitor():
 
