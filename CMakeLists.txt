@@ -58,11 +58,11 @@ find_package(catkin REQUIRED COMPONENTS
  )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES  
+  LaunchTrajectory.srv
+  LaunchTrigger.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -77,9 +77,9 @@ find_package(catkin REQUIRED COMPONENTS
    geometry_msgs
    trajectory_msgs
    nav_msgs
-   mavros_msgs#   std_msgs
-   
+   mavros_msgs
  )
+
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
