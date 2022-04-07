@@ -48,7 +48,7 @@ def sweeper():
     setpoint_step = 4
     sweep_status = 0
     step_counter = 0
-    error_tolerance = 0.8
+    error_tolerance = 1.5
 
     # Define vehicle position subscriber
     pose_sub = rospy.Subscriber('/red/odometry', Odometry, pose_callback)
