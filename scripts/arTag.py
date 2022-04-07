@@ -2,14 +2,13 @@
 
 # Commander node for qforge_ros package
 # Publishes estimated artag location 'ar_tag_est'
-# Subscrbies to ar tag measurment 'ar_point'
+# Subscribes to ar tag measurment 'ar_point'
+# Subscribes to odometry '/red/odometry'
 
 import rospy
 import tf2_ros
 import numpy as np
-from std_msgs.msg import String
-from std_msgs.msg import Bool
-from std_msgs.msg import Int16
+from std_msgs.msg import String, Bool, Int16
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseStamped
@@ -98,6 +97,7 @@ def arTag():
     rcb = np.array([0.200, 0.000, 0.050])
     x_kk = np.array([0, 0,0]) # initial position
 
+    msg = ArTagLocation()
     tagDetect = False
 
     rospy.loginfo("AR tag estimator started")
@@ -132,9 +132,7 @@ def arTag():
         K = np.matmul(P_kkm1, np.matmul(np.transpose(H), np.linalg.inv(S)))
         x_kk = x_kkm1 + np.dot(K, y)
         P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
-        print(P)
         
-        msg = ArTagLocation()
         msg.position.x = x_kk[0]
         msg.position.y = x_kk[1]
         msg.position.z = x_kk[2]
