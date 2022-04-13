@@ -50,6 +50,7 @@ def zone_callback(msg):
 def commander():
 
     global state
+    global drop_progress
 
     # Initialize node
     rospy.init_node('commander')
