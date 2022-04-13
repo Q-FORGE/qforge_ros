@@ -62,8 +62,8 @@ def navigator():
     start_pose_pub = rospy.Publisher('launch/start_pose', PoseStamped, queue_size = 1, latch = True)
 
     # Define launch service proxy
-    launch_traj_gen_serv = rospy.ServiceProxy('launch_trajectory',LaunchTrajectory)
-    launch_traj_input = LaunchTrajectoryRequest()
+    launch_trajectory_gen_serv = rospy.ServiceProxy('launch_trajectory',LaunchTrajectory)
+    launch_trajectory_input = LaunchTrajectoryRequest()
 
     # Initialize publishing variables
     publish_target = False
@@ -73,7 +73,7 @@ def navigator():
     traj_started = False
 
     # Hardcode target position
-    target_pos = Point(12.5,-3,2)
+    target_position = Point(12.5,-3,2)
     wall_normal = Vector3(-1,0,0)
 
     state = rospy.wait_for_message('vehicle_state', String)
