@@ -42,6 +42,11 @@ def ready_callback(msg):
     global drop_primed
     drop_primed = msg.data
 
+def zone_callback(msg):
+    # Update 'current_zone' when topic is published
+    global current_zone
+    current_zone = msg.data
+
 def commander():
 
     global state
@@ -53,10 +58,11 @@ def commander():
     # Define vehicle state publisher
     state_pub = rospy.Publisher('vehicle_state', String, queue_size = 1)
 
-    # Define subscribers for state booleans
+    # Define subscribers for state booleans and current zone
     alt_sub = rospy.Subscriber('alt_state', Bool, alt_callback)
     drop_sub = rospy.Subscriber('launch/ball_dropped', Bool, drop_callback)
     ready_sub = rospy.Subscriber('launch/drop_primed', Bool, ready_callback)
+    zone_sub = rospy.Subscriber('current_zone', Int16, zone_callback)
 
     while not rospy.is_shutdown():
 
