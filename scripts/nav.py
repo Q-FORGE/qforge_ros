@@ -1,4 +1,4 @@
-#ll!/usr/bin/env python
+#!/usr/bin/env python
 
 # Navigation node for qforge_ros package
 # Publishes PoseStamped setpoint to 'tracker/input_pose'
@@ -10,10 +10,10 @@
 
 import rospy
 from std_msgs.msg import String
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Point, Vector3
 from nav_msgs.msg import Odometry
 from qforge_ros.srv import LaunchTrajectory, LaunchTrajectoryRequest
-from trajectory_msg.msg import MultiDOFJointTrajectory
+from trajectory_msgs.msg import MultiDOFJointTrajectory
 
 # Fetch node rate parameter
 nav_rate = rospy.get_param('nav_rate',10)

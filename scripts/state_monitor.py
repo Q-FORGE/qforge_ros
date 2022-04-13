@@ -12,6 +12,7 @@ import numpy as np
 from std_msgs.msg import Bool
 from std_msgs.msg import Int16
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Pose, PoseStamped
 
 # Fetch parameters
 monitor_rate = rospy.get_param('monitor_rate', 5)
@@ -77,7 +78,7 @@ def state_monitor():
     # Define pose subscriber
     pose_sub = rospy.Subscriber('odometry',Odometry, pose_callback)
     start_pose_sub = rospy.Subscriber('launch/start_pose', PoseStamped,
-            start_callback, (drop_pub))
+            start_callback, (ready_pub))
 
     while not rospy.is_shutdown():
 
