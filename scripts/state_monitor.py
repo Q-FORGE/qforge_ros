@@ -53,7 +53,7 @@ def pose_callback(msg):
 def start_callback(msg, args):
     # Publish drop_primed when vehicle within start pose
 
-    ready_pub = args[0]
+    ready_pub = args
 
     dist = np.array([msg.pose.position.x - current_pose.position.x,
         msg.pose.position.y - current_pose.position.y,
@@ -78,7 +78,7 @@ def state_monitor():
     # Define pose subscriber
     pose_sub = rospy.Subscriber('odometry',Odometry, pose_callback)
     start_pose_sub = rospy.Subscriber('launch/start_pose', PoseStamped,
-            start_callback, (ready_pub))
+            start_callback, ready_pub)
 
     while not rospy.is_shutdown():
 
