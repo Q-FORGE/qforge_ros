@@ -15,40 +15,54 @@ from trajectory_msgs.msg import MultiDOFJointTrajectory,MultiDOFJointTrajectoryP
 # Fetch node rate parameter
 searcher_rate = rospy.get_param('searcher_rate',10)
 
-# Initialize publishing variables
-publish_target = False
-last_msg = rospy.Time.now()
-
 # Define pose contructors
-zone2_init = [1,0,2] 
+zone2_init = [4,0,8] 
 
 def searcher_test():
+    global start_pose
 
-    now = rospy.Time.now()
+    # Initialize node
+    rospy.init_node('searcher_test')
+    rate = rospy.Rate(searcher_rate)
+
+    # Define target waypoint publisher
+    target_pub = rospy.Publisher('/red/tracker/input_pose', PoseStamped, queue_size=1, latch=True)
+    # trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
+
+    # Initialize publishing variables
+    # publish_target = False
+    # last_msg = rospy.Time.now()
     start_pose = PoseStamped()
     rate = rospy.Rate(searcher_rate)
 
-    start_pose.pose.position.x = zone2_init[0]
-    start_pose.pose.position.y = zone2_init[1]
-    start_pose.pose.position.z = zone2_init[2]
+    # start_pose.pose.position.x = zone2_init[0]
+    # start_pose.pose.position.y = zone2_init[1]
+    # start_pose.pose.position.z = zone2_init[2]
+    start_pose.pose.position.x = 2
+    start_pose.pose.position.y = 0
+    start_pose.pose.position.z = 2
+
     start_pose.pose.orientation.x = 0
     start_pose.pose.orientation.y = 0
     start_pose.pose.orientation.z = 0
     start_pose.pose.orientation.w = 1  
 
-    target_pub = rospy.Publisher('/red/tracker/input_pose', PoseStamped, queue_size=1, latch=True)
-    # trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
+    # while not rospy.is_shutdown():
+    #     now = rospy.Time.now()
+        
+        
+        # if (now.secs - last_msg.secs > 2.):
+        #         publish_target = True 
 
+        # if publish_target:
+    target_pub.publish(start_pose)
+    rospy.sleep(5)
     
-    if (now.secs - last_msg.secs > 2.):
-            publish_target = True 
+    
+        #         publish_target = False
+        #         last_msg = rospy.Time.now()
 
-    if publish_target:
-            target_pub.publish(start_pose)
-            publish_target = False
-            last_msg = rospy.Time.now()
-
-    rate.sleep()
+        # rate.sleep()
 
 
 if __name__ == '__main__':
