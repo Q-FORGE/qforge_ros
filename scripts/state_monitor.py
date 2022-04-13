@@ -12,29 +12,41 @@ import numpy as np
 from std_msgs.msg import Bool
 from std_msgs.msg import Int16
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Point, PoseStamped
 
 # Fetch parameters
 monitor_rate = rospy.get_param('monitor_rate', 5)
 min_height = rospy.get_param('min_height', 2.)
 max_height = rospy.get_param('max_height', 10.)
-drop_start_tol = rospy.get_param('drop_start_tol', 0.1)
+drop_start_tol = rospy.get_param('drop_start_tol', 0.2)
 
 # Initialize state parameters
 alt_state = False
+drop_point_defined = False
+start_point = Point()
 current_zone = 1
-current_pose = Pose()
 
-def pose_callback(msg):
+def pose_callback(msg,args):
     # Update 'alt_state' and 'current_pose' when topic is published
+    # Publish 'drop_primed' when vehicle is close to 'start_point'
 
     global alt_state
     global current_zone
-    global current_pose
 
-    current_pose = msg.pose.pose
     height = msg.pose.pose.position.z
     x = msg.pose.pose.position.x
+
+    if drop_point_defined:
+        ready_pub = args
+        current_point = msg.pose.pose.position
+        dist = np.array([start_point.x - current_point.x,
+            start_point.y - current_point.y,
+            start_point.z - current_point.z])
+
+        if (np.linalg.norm(dist) < drop_start_tol):
+            ready_pub.publish(True)
+        else:
+            ready_pub.publish(False)
 
     if ((height < min_height) or (height > max_height)):
         alt_state = False
@@ -50,19 +62,13 @@ def pose_callback(msg):
     else:
         current_zone = -1
 
-def start_callback(msg, args):
-    # Publish drop_primed when vehicle within start pose
+def start_callback(msg):
+    # Set 'start_point' when topic is published
+    global start_point
+    global drop_point_defined
+    start_point = msg.pose.position
+    drop_point_defined = True
 
-    ready_pub = args
-
-    dist = np.array([msg.pose.position.x - current_pose.position.x,
-        msg.pose.position.y - current_pose.position.y,
-        msg.pose.position.z - current_pose.position.z])
-
-    if (numpy.linalg.norm(dist) < drop_start_tol):
-        ready_pub.publish(True)
-    else:
-        ready_pub.publish(False)
 
 def state_monitor():
 
@@ -76,9 +82,9 @@ def state_monitor():
     ready_pub = rospy.Publisher('launch/drop_primed', Bool, queue_size = 1)
 
     # Define pose subscriber
-    pose_sub = rospy.Subscriber('odometry',Odometry, pose_callback)
+    pose_sub = rospy.Subscriber('odometry',Odometry, pose_callback, ready_pub)
     start_pose_sub = rospy.Subscriber('launch/start_pose', PoseStamped,
-            start_callback, ready_pub)
+            start_callback)
 
     while not rospy.is_shutdown():
 
