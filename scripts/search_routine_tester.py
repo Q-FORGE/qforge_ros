@@ -2,6 +2,7 @@
 # use to test search routine service
 
 import rospy
+import std_msgs.msg
 from geometry_msgs.msg import Point,Vector3,PoseStamped
 from trajectory_msgs.msg import MultiDOFJointTrajectory,MultiDOFJointTrajectoryPoint
 from qforge_ros.srv import SearchRoutine, SearchRoutineRequest
