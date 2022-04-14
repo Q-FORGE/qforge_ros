@@ -43,7 +43,7 @@ def demo_search():
     rospy.sleep(5)
 
     while not rospy.is_shutdown():
-        ar_est_sub = rospy.Subscriber('/red/ar_tag_est', ArTagLocation , ar_est_callback)
+        ar_est_sub = rospy.Subscriber('ar_tag_est', ArTagLocation , ar_est_callback)
         ar_lock = ar_estimate.lock
         if ar_lock:
             # ar_position = [ar_estimate.position.x,ar_estimate.position.y,ar_estimate.position.z]
