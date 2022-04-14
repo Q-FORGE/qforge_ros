@@ -12,7 +12,8 @@ from qforge_ros.srv import SearchRoutine, SearchRoutineResponse
 
 def calculate_search_trajectory(req):
     
-    speed_read = req.speed
+    # speed_read = req.speed
+    fov_camera = req.fov
 
     initial_pose = MultiDOFJointTrajectoryPoint()
     initial_pose.transforms = [Transform(translation=Vector3(2,0,2),rotation=Quaternion(0,0,0,1))]

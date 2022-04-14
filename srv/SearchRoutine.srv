@@ -1,3 +1,3 @@
-std_msgs/Float32 speed
+geometry_msgs/Vector3 fov
 ---
 trajectory_msgs/MultiDOFJointTrajectory trajectory

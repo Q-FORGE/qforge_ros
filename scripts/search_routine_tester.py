@@ -9,7 +9,7 @@ from qforge_ros.srv import SearchRoutine, SearchRoutineRequest
 
 
 
-def search_routine_Tester():
+def search_routine_tester():
     rospy.wait_for_service('search_routine')
     search_routine_handle = rospy.ServiceProxy('search_routine',SearchRoutine)
     search_routine_input = SearchRoutineRequest()
@@ -17,10 +17,11 @@ def search_routine_Tester():
     # search_routine_input.y_bound = [-6,6]
     # search_routine_input.z_bound = [2,6]
     # search_routine_input.fov = [4,4,1]
-    search_routine_input.speed = 3.2
+    # search_routine_input.speed = 3.2
+    search_routine_input.fov = Vector3(4,4,1)
     search_routine = search_routine_handle(search_routine_input)
 
-    rospy.init_node('searh_routine_Tester')
+    rospy.init_node('search_routine_tester')
 
     trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
     trajectory_pub.publish(search_routine.trajectory)
@@ -28,7 +29,7 @@ def search_routine_Tester():
 
 if __name__ == '__main__':
     try:
-        search_routine_Tester()
+        search_routine_tester()
     except rospy.ROSInterruptException:
         pass
 
