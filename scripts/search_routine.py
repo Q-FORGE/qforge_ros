@@ -17,8 +17,10 @@ def calculate_search_trajectory(req):
     x_bound = [req.min_bound.x, req.max_bound.x]
     y_bound = [req.min_bound.y, req.max_bound.y]
     z_bound = [req.min_bound.z, req.max_bound.z] 
-    trans_time = req.translational_time
-    rot_time = req.rotational.time
+    # trans_time = req.translational_time
+    # rot_time = req.rotational.time
+    trans_time = 2.2
+    rot_time = 0.5
 
     # Define max corners
     corner_1_point = Vector3(x_bound[0],y_bound[0],z_bound[0])

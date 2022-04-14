@@ -1,7 +1,5 @@
 geometry_msgs/Vector3 min_bound
 geometry_msgs/Vector3 max_bound
 geometry_msgs/Vector3 fov
-std_msgs/Float32 translational_time
-std_msgs/Float32 rotational_time
 ---
 trajectory_msgs/MultiDOFJointTrajectory trajectory
