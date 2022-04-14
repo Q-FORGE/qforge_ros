@@ -28,22 +28,38 @@ def calculate_search_trajectory(req):
     corner_3 = [x_bound[1],y_bound[1],z_bound[0]]
     corner_4 = [x_bound[0],y_bound[1],z_bound[0]]
     
-    # First pass
-    point_1 = Vector3(corner_1[0]+0.5*fov_camera[1],corner_1[1]+fov_camera[0],corner_1[2]+0.5*fov_camera[2])
-    point_2 = Vector3(corner_2[0]-0.5*fov_camera[1],corner_2[1]+fov_camera[0],corner_2[2]+0.5*fov_camera[2])
-    point_3 = point_2
-    point_4 = Vector3(corner_3[0]-fov_camera[0],corner_3[1]-0.5*fov_camera[1],corner_3[2]+0.5*fov_camera[2])
-    point_5 = point_4
-    point_6 = Vector3(corner_4[0]+0.5*fov_camera[1],corner_4[1]-fov_camera[0],corner_4[2]+0.5*fov_camera[2])
+    # # First pass
+    # point_1 = Vector3(corner_1[0]+0.5*fov_camera[1],corner_1[1]+fov_camera[0],corner_1[2]+0.5*fov_camera[2])
+    # point_2 = Vector3(corner_2[0]-0.5*fov_camera[1],corner_2[1]+fov_camera[0],corner_2[2]+0.5*fov_camera[2])
+    # point_3 = point_2
+    # point_4 = Vector3(corner_3[0]-fov_camera[0],corner_3[1]-0.5*fov_camera[1],corner_3[2]+0.5*fov_camera[2])
+    # point_5 = point_4
+    # point_6 = Vector3(corner_4[0]+0.5*fov_camera[1],corner_4[1]-fov_camera[0],corner_4[2]+0.5*fov_camera[2])
 
-    # Second pass
-    point_7 = Vector3(corner_4[0]+0.5*fov_camera[1],corner_4[1]-fov_camera[0],corner_4[2]+1.5*fov_camera[2])
-    point_8 = Vector3(corner_3[0]-0.5*fov_camera[1],corner_3[1]-fov_camera[0],corner_3[2]+1.5*fov_camera[2])
-    point_9 = point_8
-    point_10 = Vector3(corner_2[0]-fov_camera[0],corner_2[1]+0.5*fov_camera[1],corner_2[2]+1.5*fov_camera[2])
-    point_11 = point_10
-    point_12 = Vector3(corner_1[0]+0.5*fov_camera[1],corner_1[1]+fov_camera[0],corner_1[2]+1.5*fov_camera[2])
+    # # Second pass
+    # point_7 = Vector3(corner_4[0]+0.5*fov_camera[1],corner_4[1]-fov_camera[0],corner_4[2]+1.5*fov_camera[2])
+    # point_8 = Vector3(corner_3[0]-0.5*fov_camera[1],corner_3[1]-fov_camera[0],corner_3[2]+1.5*fov_camera[2])
+    # point_9 = point_8
+    # point_10 = Vector3(corner_2[0]-fov_camera[0],corner_2[1]+0.5*fov_camera[1],corner_2[2]+1.5*fov_camera[2])
+    # point_11 = point_10
+    # point_12 = Vector3(corner_1[0]+0.5*fov_camera[1],corner_1[1]+fov_camera[0],corner_1[2]+1.5*fov_camera[2])
     
+    # First pass alt
+    offst = fov_camera[0]*0.7071
+    point_1 = Vector3(corner_1[0]+offst,corner_1[1]+offst,corner_1[2]+0.5*fov_camera[2])
+    point_2 = Vector3(corner_2[0]-offst,corner_2[1]+offst,corner_2[2]+0.5*fov_camera[2])
+    point_3 = point_2
+    point_4 = Vector3(corner_3[0]-offst,corner_3[1]-offst,corner_3[2]+0.5*fov_camera[2])
+    point_5 = point_4
+    point_6 = Vector3(corner_4[0]+offst,corner_4[1]-offst,corner_4[2]+0.5*fov_camera[2])
+
+    # Second pass alt
+    point_7 = Vector3(corner_4[0]+offst,corner_4[1]-offst,corner_4[2]+1.5*fov_camera[2])
+    point_8 = Vector3(corner_3[0]-offst,corner_3[1]-offst,corner_3[2]+1.5*fov_camera[2])
+    point_9 = point_8
+    point_10 = Vector3(corner_2[0]-offst,corner_2[1]+offst,corner_2[2]+1.5*fov_camera[2])
+    point_11 = point_10
+    point_12 = Vector3(corner_1[0]+offst,corner_1[1]+offst,corner_1[2]+1.5*fov_camera[2])
 
 
     pose_1 = MultiDOFJointTrajectoryPoint()
