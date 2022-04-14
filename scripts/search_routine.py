@@ -12,13 +12,15 @@ from qforge_ros.srv import SearchRoutine, SearchRoutineResponse
 
 def calculate_search_trajectory(req):
     
+    speed_read = req.speed
+
     initial_pose = MultiDOFJointTrajectoryPoint()
     initial_pose.transforms = [Transform(translation=Vector3(2,0,2),rotation=Quaternion(0,0,0,1))]
-    initial_pose.time_from_start = 2
+    # initial_pose.time_from_start = 2.2
 
     corner_1_pose = MultiDOFJointTrajectoryPoint()
     corner_1_pose.transforms = [Transform(translation=Vector3(4,2,8),rotation=Quaternion(0,0,0,1))]
-    corner_1_pose.time_from_start = 2
+    # corner_1_pose.time_from_start = 2.2
 
     # search_trajectory = MultiDOFJointTrajectory()
     # search_trajectory.points = [initial_pose, corner_1_pose]

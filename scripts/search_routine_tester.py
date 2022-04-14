@@ -17,7 +17,7 @@ def search_routine_Tester():
     # search_routine_input.y_bound = [-6,6]
     # search_routine_input.z_bound = [2,6]
     # search_routine_input.fov = [4,4,1]
-    search_routine_input.speed = 3
+    search_routine_input.speed = 3.2
     search_routine = search_routine_handle(search_routine_input)
 
     rospy.init_node('searh_routine_Tester')
