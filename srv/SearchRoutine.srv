@@ -1,0 +1,8 @@
+float32[2] x_bound
+float32[2] y_bound
+float32[2] z_bound
+float32 h_fov
+float32 v_fov
+float32 speed
+---
+trajectory_msgs/MultiDOFJointTrajectory trajectory

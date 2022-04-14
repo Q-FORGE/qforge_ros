@@ -62,6 +62,7 @@ add_service_files(
   FILES  
   LaunchTrajectory.srv
   LaunchTrigger.srv
+  SearchRoutine.srv
 )
 
 ## Generate actions in the 'action' folder
