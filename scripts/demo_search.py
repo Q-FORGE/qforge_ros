@@ -11,6 +11,9 @@ from qforge_ros.msg import ArTagLocation
 # Fetch node rate parameter
 demo_rate = rospy.get_param('demo_rate',10)
 
+# Initialize variables
+ar_estimate = ArTagLocation()
+
 def ar_est_callback(msg):
     # Update current pose from mavros local position
     global ar_estimate
