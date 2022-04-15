@@ -94,7 +94,7 @@ def writeBox(image,pos):
     yR = -int(phi*((yMf-np.sqrt(2)*tagsize)/zMf) - 0.5*height)
 
     rospy.logwarn(" xL: " + str(xL) + " xR: " + str(xR) + " yR: " + str(yL) + " yR: " + str(yR))
-    # cv.rectangle(cv_image,(xL,yL),(xR,yR),10,5)
+    cv.rectangle(cv_image,(xL,yL),(xR,yR),(0,255,0),5)
     # cv.imshow("Image window", cv_image)
     # cv.waitKey(3)
     return bridge.cv2_to_imgmsg(cv_image, "bgr8")
