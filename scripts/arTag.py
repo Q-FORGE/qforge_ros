@@ -8,6 +8,7 @@
 import rospy
 import tf2_ros
 import numpy as np
+from sensor_msgs.msg import Image
 from std_msgs.msg import String, Bool, Int16
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
@@ -15,10 +16,14 @@ from geometry_msgs.msg import PoseStamped
 from qforge_ros.msg import ArTagLocation
 from tf.transformations import quaternion_matrix
 from tf import transformations
+from cv_bridge import CvBridge
+from cv2 import imshow
+import cv2 as cv
+
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',1e-1)
+Pmin = rospy.get_param('arTag_lock_lim',5e-1)
 
 class quat:
     def __init__(self,q):
@@ -70,6 +75,31 @@ def getNorm(xt,yt):
     elif d4 <= d1 and d4 <= d2 and d4 <= d3:
         return [0,1,0]
 
+def writeBox(image,pos):
+    bridge = CvBridge()
+    cv_image = bridge.imgmsg_to_cv2(image, 'bgr8')
+    phi = 0.55*(640/(2*np.tan((np.pi/180)*25)))
+    width = 640
+    height = 480
+    tagsize = 0.2
+
+    xMf = pos.x
+    yMf = -pos.y
+    zMf = pos.z
+    
+    xL = int(phi*((xMf+np.sqrt(2)*tagsize)/zMf) + 0.5*width)
+    yL = -int(phi*((yMf+np.sqrt(2)*tagsize)/zMf) - 0.5*height)
+
+    xR = int(phi*((xMf-np.sqrt(2)*tagsize)/zMf) + 0.5*width)
+    yR = -int(phi*((yMf-np.sqrt(2)*tagsize)/zMf) - 0.5*height)
+
+    rospy.logwarn(" xL: " + str(xL) + " xR: " + str(xR) + " yR: " + str(yL) + " yR: " + str(yR))
+    # cv.rectangle(cv_image,(xL,yL),(xR,yR),10,5)
+    # cv.imshow("Image window", cv_image)
+    # cv.waitKey(3)
+    return bridge.cv2_to_imgmsg(cv_image, "bgr8")
+    
+
 def arTag():
     # Initialize node
     rospy.init_node('ar_tag_estimator')
@@ -77,6 +107,8 @@ def arTag():
 
     # Define tag estimate publisher
     tag_pub = rospy.Publisher('ar_tag_est', ArTagLocation, queue_size = 1)
+    image_pub = rospy.Publisher('tag_image_annotated', Image, queue_size = 1)
+    final_pos_pub = rospy.Publisher('tag_position_reconstructed', Point, queue_size = 1)
 
     Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
     R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance 
@@ -98,11 +130,16 @@ def arTag():
     x_kk = np.array([0, 0,0]) # initial position
 
     msg = ArTagLocation()
+    snap = Image()
     tagDetect = False
+    imageSnapped = False
+
+    badness_old = 20
 
     rospy.loginfo("AR tag estimator started")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message('/ar_point', Point)
+        camPos = data
         tagDetect = True
         rtc[0] = data.x
         rtc[1] = data.y
@@ -132,17 +169,32 @@ def arTag():
         K = np.matmul(P_kkm1, np.matmul(np.transpose(H), np.linalg.inv(S)))
         x_kk = x_kkm1 + np.dot(K, y)
         P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
-        
+        badness = np.amax(np.diag(P))
+
         msg.position.x = x_kk[0]
         msg.position.y = x_kk[1]
         msg.position.z = x_kk[2]
+
+        if badness < badness_old:
+            msg.position_best.x = msg.position.x
+            msg.position_best.y = msg.position.y
+            msg.position_best.z = msg.position.z
+            badness_old = badness
+
         norm = getNorm(x_kk[0],x_kk[1])
         msg.normal.x = norm[0]
         msg.normal.y = norm[1]
         msg.normal.z = norm[2]
 
-        if np.linalg.det(P) < Pmin:
+        
+        if badness < Pmin:
             msg.lock = True
+            if not imageSnapped:
+                snap = rospy.wait_for_message("red/camera/color/image_raw",Image)
+                image_pub.publish(writeBox(snap,camPos))
+                final_pos_pub.publish(msg.position_best)
+                # image_pub.publish(snap)
+                imageSnapped = True
         else:
             msg.lock = False
         msg.detect = tagDetect
