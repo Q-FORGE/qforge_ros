@@ -16,9 +16,12 @@ from geometry_msgs.msg import PoseStamped
 from qforge_ros.msg import ArTagLocation
 from tf.transformations import quaternion_matrix
 from tf import transformations
-from cv_bridge import CvBridge
-from cv2 import imshow
-import cv2 as cv
+try:
+    from cv_bridge import CvBridge
+    from cv2 import imshow
+    import cv2 as cv
+except ImportError:
+    rospy.logerr("Open CV dependency not met. Please run 'pip install opencv-python' or rebuild the image")
 
 
 # Fetch node rate parameter
@@ -93,7 +96,7 @@ def writeBox(image,pos):
     xR = int(phi*((xMf-np.sqrt(2)*tagsize)/zMf) + 0.5*width)
     yR = -int(phi*((yMf-np.sqrt(2)*tagsize)/zMf) - 0.5*height)
 
-    rospy.logwarn(" xL: " + str(xL) + " xR: " + str(xR) + " yR: " + str(yL) + " yR: " + str(yR))
+    # rospy.logwarn(" xL: " + str(xL) + " xR: " + str(xR) + " yR: " + str(yL) + " yR: " + str(yR))
     cv.rectangle(cv_image,(xL,yL),(xR,yR),(0,255,0),5)
     # cv.imshow("Image window", cv_image)
     # cv.waitKey(3)
