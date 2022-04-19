@@ -15,35 +15,38 @@ def calculate_search_trajectory(req):
     # Input handling    
     wall_distance = req.wall_dist
     vertical_range = req.vert_range 
-    wall_ofst = 0.8*wall_distance*0.7071
-    
-    trans_time = 5
-    rot_time = 0.5
     x_bound = req.x_bounds
     y_bound = req.y_bounds
     z_bound = req.z_bounds
 
     # Define search corners
+    wall_ofst = wall_distance*0.7071
     corner_1 = [x_bound[0]+wall_ofst, y_bound[0]+wall_ofst] 
     corner_2 = [x_bound[1]-wall_ofst, y_bound[0]+wall_ofst]
     corner_3 = [x_bound[1]-wall_ofst, y_bound[1]-wall_ofst]
-    corner_4 = [x_bound[1]+wall_ofst, y_bound[1]-wall_ofst]
+    corner_4 = [x_bound[0]+wall_ofst, y_bound[1]-wall_ofst]
+    center_12 = [(corner_2[0]-corner_1[0])/2+corner_1[0],corner_1[1]]
+    center_34 = [(corner_3[0]-corner_4[0])/2+corner_4[0],corner_4[1]]
+    center_23 = [corner_2[0], (corner_3[1]-corner_2[1])/2+corner_2[1]]
+    
+
 
     # Initialize variables
-    flag_direction = True
+    add_sweep_flag = True
+    flag_direction = False
     swp_alt = z_bound[0] + 0.5*vertical_range 
-    # all_points = []
 
     response = SearchRoutineResponse()
     response.trajectory = MultiDOFJointTrajectory()
 
-    initial_pose = MultiDOFJointTrajectoryPoint()
-    initial_pose.transforms = [Transform(translation=Vector3(2,0,2),rotation=Quaternion(0,0,0,1))]
-    initial_pose.time_from_start = rospy.Duration.from_sec(trans_time)
-    response.trajectory.points = [initial_pose]
+    # initial_pose = MultiDOFJointTrajectoryPoint()
+    # initial_pose.transforms = [Transform(translation=Vector3(2,0,2),rotation=Quaternion(0,0,0,1))]
+    # response.trajectory.points = [initial_pose]
+    response.trajectory.points = []    
+
 
     # Create array of points based on altitude 
-    while swp_alt + vertical_range < z_bound[1]:
+    while add_sweep_flag:
         p1 = MultiDOFJointTrajectoryPoint()
         p1.transforms = [Transform(translation=Vector3(corner_1[0],corner_1[1],swp_alt),rotation=Quaternion(0,0,-0.7071,0.7071))]
         p2 = MultiDOFJointTrajectoryPoint()
@@ -56,103 +59,45 @@ def calculate_search_trajectory(req):
         p5.transforms = [Transform(translation=Vector3(corner_3[0],corner_3[1],swp_alt),rotation=Quaternion(0,0,0.7071,0.7071))]
         p6 = MultiDOFJointTrajectoryPoint()
         p6.transforms = [Transform(translation=Vector3(corner_4[0],corner_4[1],swp_alt),rotation=Quaternion(0,0,0.7071,0.7071))]
+
+        p12 = MultiDOFJointTrajectoryPoint()
+        p12.transforms = [Transform(translation=Vector3(center_12[0],center_12[1],swp_alt),rotation=Quaternion(0,0,-0.7071,0.7071))]
+        p23 = MultiDOFJointTrajectoryPoint()
+        p23.transforms = [Transform(translation=Vector3(center_23[0],center_23[1],swp_alt),rotation=Quaternion(0,0,0,0))]
+        p34 = MultiDOFJointTrajectoryPoint()
+        p34.transforms = [Transform(translation=Vector3(center_34[0],center_34[1],swp_alt),rotation=Quaternion(0,0,0.7071,0.7071))]
         
+
         if flag_direction == True:
-            
-            points = [p1,p2,p3,p4,p5,p6]    
-            response.trajectory.points.append(points)
-            # p1 = [corner_1[0],corner_1[1],swp_alt,-90]
-            # p2 = [corner_2[0],corner_2[1],swp_alt,-90]
-            # p3 = [corner_2[0],corner_2[1],swp_alt,0]
-            # p4 = [corner_3[0],corner_3[1],swp_alt,0]
-            # p5 = [corner_3[0],corner_3[1],swp_alt,90]
-            # p6 = [corner_4[0],corner_4[1],swp_alt,90]
-            # swp_points = [p1,p2,p3,p4,p5,p6]
-            # all_points.append(swp_points)
+            response.trajectory.points.append(p1)
+            response.trajectory.points.append(p12)
+            response.trajectory.points.append(p2)
+            response.trajectory.points.append(p3)
+            response.trajectory.points.append(p23)   
+            response.trajectory.points.append(p4)
+            response.trajectory.points.append(p5)
+            response.trajectory.points.append(p34)
+            response.trajectory.points.append(p6)
             flag_direction = False
         else:
-            points = [p6,p5,p4,p3,p2,p1]    
-            response.trajectory.points.append(points)
-            # p1 = [corner_4[0],corner_4[1],swp_alt,90]
-            # p2 = [corner_3[0],corner_3[1],swp_alt,90]
-            # p3 = [corner_3[0],corner_3[1],swp_alt,0]
-            # p4 = [corner_2[0],corner_2[1],swp_alt,0]
-            # p5 = [corner_2[0],corner_1[1],swp_alt,-90]
-            # p6 = [corner_1[0],corner_1[1],swp_alt,-90]
-            # swp_points = [p1,p2,p3,p4,p5,p6]
-            # all_points.append(swp_points)
+            response.trajectory.points.append(p6)
+            response.trajectory.points.append(p34)
+            response.trajectory.points.append(p5)
+            response.trajectory.points.append(p4)
+            response.trajectory.points.append(p23)
+            response.trajectory.points.append(p3)
+            response.trajectory.points.append(p2)
+            response.trajectory.points.append(p12)
+            response.trajectory.points.append(p1)
             flag_direction = True
 
-        swp_alt = swp_alt + vertical_range                  
-            
-
-
-    # # First pass alt
-    # offst = fov_camera[0]*0.7071
-    # point_1 = Vector3(corner_1[0]+offst,corner_1[1]+offst,corner_1[2]+0.5*fov_camera[2])
-    # point_2 = Vector3(corner_2[0]-offst,corner_2[1]+offst,corner_2[2]+0.5*fov_camera[2])
-    # point_3 = point_2
-    # point_4 = Vector3(corner_3[0]-offst,corner_3[1]-offst,corner_3[2]+0.5*fov_camera[2])
-    # point_5 = point_4
-    # point_6 = Vector3(corner_4[0]+offst,corner_4[1]-offst,corner_4[2]+0.5*fov_camera[2])
-
-    # # Second pass alt
-    # point_7 = Vector3(corner_4[0]+offst,corner_4[1]-offst,corner_4[2]+1.5*fov_camera[2])
-    # point_8 = Vector3(corner_3[0]-offst,corner_3[1]-offst,corner_3[2]+1.5*fov_camera[2])
-    # point_9 = point_8
-    # point_10 = Vector3(corner_2[0]-offst,corner_2[1]+offst,corner_2[2]+1.5*fov_camera[2])
-    # point_11 = point_10
-    # point_12 = Vector3(corner_1[0]+offst,corner_1[1]+offst,corner_1[2]+1.5*fov_camera[2])
-
-
-    # pose_1 = MultiDOFJointTrajectoryPoint()
-    # pose_1.transforms = [Transform(translation=point_1,rotation=Quaternion(0,0,-0.7071,0.7071))]
-    # pose_1.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_2 = MultiDOFJointTrajectoryPoint()
-    # pose_2.transforms = [Transform(translation=point_2,rotation=Quaternion(0,0,-0.7071,0.7071))]
-    # pose_2.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_3 = MultiDOFJointTrajectoryPoint()
-    # pose_3.transforms = [Transform(translation=point_3,rotation=Quaternion(0,0,0,0))]
-    # pose_3.time_from_start = rospy.Duration.from_sec(rot_time)
-    # pose_4 = MultiDOFJointTrajectoryPoint()
-    # pose_4.transforms = [Transform(translation=point_4,rotation=Quaternion(0,0,0,0))]
-    # pose_4.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_5 = MultiDOFJointTrajectoryPoint()
-    # pose_5.transforms = [Transform(translation=point_5,rotation=Quaternion(0,0,0.7071,0.7071))]
-    # pose_5.time_from_start = rospy.Duration.from_sec(rot_time)
-    # pose_6 = MultiDOFJointTrajectoryPoint()
-    # pose_6.transforms = [Transform(translation=point_6,rotation=Quaternion(0,0,0.7071,0.7071))]
-    # pose_6.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_7 = MultiDOFJointTrajectoryPoint()
-    # pose_7.transforms = [Transform(translation=point_7,rotation=Quaternion(0,0,0.7071,0.7071))]
-    # pose_7.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_8 = MultiDOFJointTrajectoryPoint()
-    # pose_8.transforms = [Transform(translation=point_8,rotation=Quaternion(0,0,0.7071,0.7071))]
-    # pose_8.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_9 = MultiDOFJointTrajectoryPoint()
-    # pose_9.transforms = [Transform(translation=point_9,rotation=Quaternion(0,0,0,0))]
-    # pose_9.time_from_start = rospy.Duration.from_sec(rot_time)
-    # pose_10 = MultiDOFJointTrajectoryPoint()
-    # pose_10.transforms = [Transform(translation=point_10,rotation=Quaternion(0,0,0,0))]
-    # pose_10.time_from_start = rospy.Duration.from_sec(trans_time)
-    # pose_11 = MultiDOFJointTrajectoryPoint()
-    # pose_11.transforms = [Transform(translation=point_11,rotation=Quaternion(0,0,-0.7071,0.7071))]
-    # pose_11.time_from_start = rospy.Duration.from_sec(rot_time)
-    # pose_12 = MultiDOFJointTrajectoryPoint()
-    # pose_12.transforms = [Transform(translation=point_12,rotation=Quaternion(0,0,-0.7071,0.7071))]
-    # pose_12.time_from_start = rospy.Duration.from_sec(trans_time)
-
-
-    # initial_pose = MultiDOFJointTrajectoryPoint()
-    # initial_pose.transforms = [Transform(translation=Vector3(2,0,2),rotation=Quaternion(0,0,0,1))]
-    # initial_pose.time_from_start = rospy.Duration.from_sec(trans_time)
-
-    # response = SearchRoutineResponse()
-    # response.trajectory = MultiDOFJointTrajectory()
-    # response.trajectory.points = [initial_pose, pose_1,pose_2,pose_3,pose_4,pose_5,
-        # pose_6,pose_7,pose_8,pose_9,pose_10,pose_11,pose_12]
-    # response.trajectory.points = [initial_pose, pose_1]
-
+        swp_alt = swp_alt + vertical_range 
+        if swp_alt >= z_bound[1]:
+            alt_temp = swp_alt - 0.5* vertical_range
+            if alt_temp < z_bound[1]:
+                swp_alt = z_bound[1] - 0.5*vertical_range
+            else:
+                add_sweep_flag = False
 
 
     return response
