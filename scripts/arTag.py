@@ -194,13 +194,20 @@ def arTag():
             msg.lock = True
             if not imageSnapped:
                 snap = rospy.wait_for_message("red/camera/color/image_raw",Image)
-                image_pub.publish(writeBox(snap,camPos))
                 final_pos_pub.publish(msg.position_best)
                 # image_pub.publish(snap)
+                image_pub.publish(writeBox(snap,camPos))   
                 imageSnapped = True
+                image_pub_iter = 0
+                image_pub_iter_lim = 1
         else:
             msg.lock = False
         msg.detect = tagDetect
+
+        if snap is not None and image_pub_iter < image_pub_iter_lim:
+             image_pub.publish(writeBox(snap,camPos))
+             image_pub_iter = image_pub_iter + 1
+             rospy.logwarn(image_pub_iter)
 
         tag_pub.publish(msg)
             
