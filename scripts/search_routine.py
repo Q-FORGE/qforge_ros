@@ -13,12 +13,12 @@ from qforge_ros.srv import SearchRoutine, SearchRoutineResponse
 def calculate_search_trajectory(req):
     
     # Input handling    
-    wall_distance = req.wall_dist
-    vertical_range = req.vert_range 
-    x_bound = req.x_bounds
+    wall_distance = req.wall_dist         # camera depth (4 is nominal, less is reccommended)
+    vertical_range = req.vert_range       # vertical camera range (1 gives best results)
+    x_bound = req.x_bounds                # bounding boxes 
     y_bound = req.y_bounds
     z_bound = req.z_bounds
-    flag_direction = req.ccw_flag
+    flag_direction = req.ccw_flag         # If true, first sweep is counter clockwise
 
     # Define search corners
     wall_ofst = wall_distance*0.7071
@@ -31,7 +31,6 @@ def calculate_search_trajectory(req):
     center_23 = [corner_2[0], (corner_3[1]-corner_2[1])/2+corner_2[1]]
     
 
-
     # Initialize variables
     add_sweep_flag = True   # If true, do another ccw or cw sweep
     swp_alt = z_bound[0] + 0.5*vertical_range  # Altitude for sweep cycle
@@ -41,7 +40,7 @@ def calculate_search_trajectory(req):
     response.trajectory.points = []    
 
 
-    # Create array of points based on altitude 
+    # Build trajectory
     while add_sweep_flag:
         p1 = MultiDOFJointTrajectoryPoint()
         p1.transforms = [Transform(translation=Vector3(corner_1[0],corner_1[1],swp_alt),rotation=Quaternion(0,0,-0.7071,0.7071))]
