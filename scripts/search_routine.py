@@ -18,6 +18,7 @@ def calculate_search_trajectory(req):
     x_bound = req.x_bounds
     y_bound = req.y_bounds
     z_bound = req.z_bounds
+    flag_direction = req.ccw_flag
 
     # Define search corners
     wall_ofst = wall_distance*0.7071
@@ -32,16 +33,11 @@ def calculate_search_trajectory(req):
 
 
     # Initialize variables
-    add_sweep_flag = True
-    flag_direction = False
-    swp_alt = z_bound[0] + 0.5*vertical_range 
+    add_sweep_flag = True   # If true, do another ccw or cw sweep
+    swp_alt = z_bound[0] + 0.5*vertical_range  # Altitude for sweep cycle
 
     response = SearchRoutineResponse()
     response.trajectory = MultiDOFJointTrajectory()
-
-    # initial_pose = MultiDOFJointTrajectoryPoint()
-    # initial_pose.transforms = [Transform(translation=Vector3(2,0,2),rotation=Quaternion(0,0,0,1))]
-    # response.trajectory.points = [initial_pose]
     response.trajectory.points = []    
 
 
@@ -68,7 +64,8 @@ def calculate_search_trajectory(req):
         p34.transforms = [Transform(translation=Vector3(center_34[0],center_34[1],swp_alt),rotation=Quaternion(0,0,0.7071,0.7071))]
         
 
-        if flag_direction == True:
+        if flag_direction == True:    
+            # ccw sweep
             response.trajectory.points.append(p1)
             response.trajectory.points.append(p12)
             response.trajectory.points.append(p2)
@@ -80,6 +77,7 @@ def calculate_search_trajectory(req):
             response.trajectory.points.append(p6)
             flag_direction = False
         else:
+            # cw sweep
             response.trajectory.points.append(p6)
             response.trajectory.points.append(p34)
             response.trajectory.points.append(p5)
@@ -95,6 +93,7 @@ def calculate_search_trajectory(req):
         if swp_alt >= z_bound[1]:
             alt_temp = swp_alt - 0.5* vertical_range
             if alt_temp < z_bound[1]:
+                # Final additional sweep ensures full area coverage
                 swp_alt = z_bound[1] - 0.5*vertical_range
             else:
                 add_sweep_flag = False

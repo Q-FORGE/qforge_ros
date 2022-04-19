@@ -19,6 +19,7 @@ def search_routine_tester():
     search_routine_input.z_bounds = [2,4.5]
     search_routine_input.wall_dist = 3
     search_routine_input.vert_range = 1
+    search_routine_input.ccw_flag = True
     
     search_routine = search_routine_handle(search_routine_input)
 
