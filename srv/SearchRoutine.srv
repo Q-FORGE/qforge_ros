@@ -1,5 +1,7 @@
-geometry_msgs/Vector3 min_bound
-geometry_msgs/Vector3 max_bound
-geometry_msgs/Vector3 fov
+float32[2] x_bounds
+float32[2] y_bounds
+float32[2] z_bounds
+float32 wall_dist
+float32 vert_range
 ---
 trajectory_msgs/MultiDOFJointTrajectory trajectory
