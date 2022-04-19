@@ -29,12 +29,19 @@ def demo_search():
     rospy.wait_for_service('search_routine')
     search_routine_handle = rospy.ServiceProxy('search_routine',SearchRoutine)
     search_routine_input = SearchRoutineRequest()
-    search_routine_input.min_bound = Vector3(2,-6.5,2)
-    search_routine_input.max_bound = Vector3(12,6.5,4.5)
-    search_routine_input.fov = Vector3(4,4,1)
+    # search_routine_input.min_bound = Vector3(2,-6.5,2)
+    # search_routine_input.max_bound = Vector3(12,6.5,4.5)
+    # search_routine_input.fov = Vector3(4,4,1)
     # search_routine_input.translational_time = 2.0
     # search_routine_input.rotational_time = 0.5    
     
+    search_routine_input.x_bounds = [2,12]
+    search_routine_input.y_bounds = [-6.5,6.5]
+    search_routine_input.z_bounds = [2,4.5]
+    search_routine_input.wall_dist = 4
+    search_routine_input.vert_range = 1
+    
+
     search_routine = search_routine_handle(search_routine_input)
 
     rospy.init_node('demo_search')
@@ -45,7 +52,7 @@ def demo_search():
     trajectory_pub.publish(search_routine.trajectory)
     rospy.sleep(5)
 
-    while not rospy.is_shutdown():
+    while not rospy.is_shutdown() :
         ar_est_sub = rospy.Subscriber('ar_tag_est', ArTagLocation , ar_est_callback)
         ar_lock = ar_estimate.lock
         if ar_lock:

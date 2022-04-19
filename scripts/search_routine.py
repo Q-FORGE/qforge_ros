@@ -13,14 +13,18 @@ from qforge_ros.srv import SearchRoutine, SearchRoutineResponse
 def calculate_search_trajectory(req):
     
     # Input handling
-    fov_camera = np.array([req.fov.x,req.fov.y,req.fov.z]) 
-    x_bound = [req.min_bound.x, req.max_bound.x]
-    y_bound = [req.min_bound.y, req.max_bound.y]
-    z_bound = [req.min_bound.z, req.max_bound.z] 
-    # trans_time = req.translational_time
-    # rot_time = req.rotational.time
+    # fov_camera = np.array([req.fov.x,req.fov.y,req.fov.z]) 
+    fov_camera = np.array([4, 4, 1])
+    # x_bound = [req.min_bound.x, req.max_bound.x]
+    # y_bound = [req.min_bound.y, req.max_bound.y]
+    # z_bound = [req.min_bound.z, req.max_bound.z] 
+    # # trans_time = req.translational_time
+    # # rot_time = req.rotational.time
     trans_time = 5
     rot_time = 0.5
+    x_bound = req.x_bounds
+    y_bound = req.y_bounds
+    z_bound = req.z_bounds
 
     # Define max corners
     corner_1 = [x_bound[0],y_bound[0],z_bound[0]]
