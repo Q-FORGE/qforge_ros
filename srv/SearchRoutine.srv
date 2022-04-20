@@ -1,0 +1,8 @@
+float32[2] x_bounds
+float32[2] y_bounds
+float32[2] z_bounds
+float32 wall_dist
+float32 vert_range
+bool ccw_flag
+---
+trajectory_msgs/MultiDOFJointTrajectory trajectory

@@ -4,5 +4,6 @@
     <include file="$(find qforge_ros)/launch/state_machine.launch"/>
     <include file="$(find qforge_ros)/launch/navigator.launch"/>
     <include file="$(find qforge_ros)/launch/ar_tag.launch"/>
+    <include file="$(find qforge_ros)/launch/search_routine.launch"/>
   </group>
 </launch>
