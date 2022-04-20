@@ -2,11 +2,7 @@
 # service for area 3 sweep 
 
 import rospy
-import numpy as np
-from math import pi, modf
-from scipy.spatial.transform import Rotation as R
-import std_msgs.msg
-from geometry_msgs.msg import Transform,Quaternion,Twist,Vector3,PoseStamped,Pose,Point
+from geometry_msgs.msg import Transform,Quaternion,Vector3
 from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectoryPoint
 from qforge_ros.srv import SearchRoutine, SearchRoutineResponse
 
