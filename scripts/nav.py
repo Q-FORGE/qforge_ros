@@ -136,7 +136,7 @@ def navigator():
                 search_traj_gen = True
                 search_routine_input.x_bounds = [1.,12.5];
                 search_routine_input.y_bounds = [-7.5,7.5];
-                search_routine_input.z_bounds = [1.,4.];
+                search_routine_input.z_bounds = [2.,4.];
                 search_routine_input.wall_dist = 3.
                 search_routine_input.vert_range = 1.
                 search_routine_input.ccw_flag = False
