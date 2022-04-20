@@ -60,9 +60,9 @@ def quat_from_normal(normal):
     if isclose(normal.y, 1., rel_tol = 1e-4):
         quat = Quaternion(0.,0.,0.7071,0.7071)
     elif isclose(normal.y, -1., rel_tol = 1e-4):
-        quat = Quaternion(0.,0.,-0.7071,0.7071))
+        quat = Quaternion(0.,0.,-0.7071,0.7071)
     else:
-        quat = Quaternion(0.,0.,0.,0.)
+        quat = Quaternion(0.,0.,0.,1.)
     return quat
 
 def navigator():
