@@ -6,8 +6,8 @@ from geometry_msgs.msg import Transform,Quaternion,Vector3
 from trajectory_msgs.msg import MultiDOFJointTrajectory,MultiDOFJointTrajectoryPoint
 
 
-def search_routine_tester():
-    rospy.init_node('search_routine_tester')
+def align():
+    rospy.init_node('align')
     trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
 
     initial_trajectory = MultiDOFJointTrajectory()
@@ -23,11 +23,6 @@ def search_routine_tester():
 
 if __name__ == '__main__':
     try:
-        search_routine_tester()
+        align()
     except rospy.ROSInterruptException:
         pass
-
-
-
-# message_test = SearchRoutineResponse
-

@@ -8,28 +8,26 @@ from qforge_ros.srv import SearchRoutine, SearchRoutineRequest
 
 
 
-def search_routine_tester():
-    rospy.init_node('search_routine_tester')
+def kobe():
+    rospy.init_node('kobe')
     trajectory_pub = rospy.Publisher('/red/tracker/input_trajectory', MultiDOFJointTrajectory, queue_size=1, latch=True)
 
-    initial_trajectory = MultiDOFJointTrajectory()
+    wall_rush = MultiDOFJointTrajectory()
     p1 = MultiDOFJointTrajectoryPoint()
-    p1.transforms = [Transform(translation=Vector3(0,0,8),rotation=Quaternion(0,0,0,1))]
-    p2 = MultiDOFJointTrajectoryPoint()
-    wall_dist = 4
-    p2.transforms = [Transform(translation=Vector3(12.5-wall_dist,-3,2),rotation=Quaternion(0,0,0,1))]
-    initial_trajectory.points = [p1,p2]
-    trajectory_pub.publish(initial_trajectory)
+    p1.transforms = [Transform(translation=Vector3(14,-3,2),rotation=Quaternion(0,0,0,1))]
+    wall_rush.points = [p1]
+    trajectory_pub.publish(wall_rush)
+    rospy.sleep(2)
+      
+    back_up = MultiDOFJointTrajectoryPoint()
+    p2.transforms = [Transform(translation=Vector3(9,-3,2.5),rotation=Quaternion(0,0,0,1))]
+    back_up.points = [p2]
+    trajectory_pub.publish(back_up)
     rospy.sleep(5)
 
 
 if __name__ == '__main__':
     try:
-        search_routine_tester()
+        kobe()
     except rospy.ROSInterruptException:
         pass
-
-
-
-# message_test = SearchRoutineResponse
-
