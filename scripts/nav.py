@@ -10,15 +10,18 @@
 # Calls LaunchTrajectory service at 'launch_trajectory'
 
 import rospy
+from math import isclose
 from std_msgs.msg import String
-from geometry_msgs.msg import PoseStamped, Point, Vector3
+from geometry_msgs.msg import PoseStamped, Point, Vector3, Quaternion
 from nav_msgs.msg import Odometry
-from qforge_ros.srv import LaunchTrajectory, LaunchTrajectoryRequest
+from qforge_ros.srv import LaunchTrajectory, LaunchTrajectoryRequest, \
+        SearchRoutine, SearchRoutineRequest
 from qforge_ros.msg import ArTagLocation
 from trajectory_msgs.msg import MultiDOFJointTrajectory
 
 # Fetch node rate parameter
 nav_rate = rospy.get_param('nav_rate',10)
+refine_spacing = rospy.get_param('refine_spacing',2)
 
 # Initialize variables
 setpoint_pose = PoseStamped()
@@ -52,6 +55,16 @@ def tag_callback(msg):
     target_position = msg.position_best
     wall_normal = msg.normal
 
+def quat_from_normal(normal):
+    # Return quaternion facing normal vector
+    if isclose(normal.y, 1., rel_tol = 1e-4):
+        quat = Quaternion(0.,0.,0.7071,0.7071)
+    elif isclose(normal.y, -1., rel_tol = 1e-4):
+        quat = Quaternion(0.,0.,-0.7071,0.7071))
+    else:
+        quat = Quaternion(0.,0.,0.,0.)
+    return quat
+
 def navigator():
 
     global state
@@ -79,12 +92,18 @@ def navigator():
     launch_trajectory_gen_serv = rospy.ServiceProxy('launch_trajectory',LaunchTrajectory)
     launch_trajectory_input = LaunchTrajectoryRequest()
 
+    # Define sweep service proxy
+    search_routine_serv = rospy.ServiceProx('search_routine',SearchRoutine)
+    search_routine_input = SearchRoutineRequest()
+
     # Initialize publishing variables
     publish_target = False
     publish_traj = False
     last_msg = rospy.Time.now()
     ball_traj_gen = False
-    traj_started = False
+    search_traj_gen = False
+    ball_traj_started = False
+    search_traj_started = False
 
     state = rospy.wait_for_message('vehicle_state', String)
 
@@ -110,6 +129,35 @@ def navigator():
                 publish_target = True
             setpoint_pose = zone3_pose
 
+        elif state.data == 'ar_search':
+            now = rospy.Time.now()
+            publish_traj = True
+            if not search_traj_gen:
+                search_traj_gen = True
+                search_routine_input.x_bounds = [1.,12.5];
+                search_routine_input.y_bounds = [-7.5,7.5];
+                search_routine_input.z_bounds = [1.,4.];
+                search_routine_input.wall_dist = 3.
+                search_routine_input.vert_range = 1.
+                search_routine_input.ccw_flag = False
+                search_routine = search_routine_serv(search_routine_input)
+            if not search_traj_started:
+                publish_target = True
+                search_traj_started = True
+            else:
+                publish_target = False
+            setpoint_traj = launch_trajectory.trajectory
+
+        elif state.data == 'ar_refine':
+            now = rospy.Time.now()
+            publish_traj = False
+            if (now.secs - last_msg.sec > 1.):
+                publish_target = True
+            setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
+            setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
+            setpoint_pose.pose.position.z = target_position.y + wall_normal.z*refine_spacing
+            setpoint_pose.pose.orientation = quat_from_normal(wall_normal)
+
         elif state.data == 'trans_to_drop':
             now = rospy.Time.now()
             publish_traj = False
@@ -127,9 +175,9 @@ def navigator():
         elif state.data == 'ball_drop':
             now = rospy.Time.now()
             publish_traj = True
-            if not traj_started:
+            if not ball_traj_started:
                 publish_target = True
-                traj_started = False
+                ball_traj_started = True
             else:
                 publish_target = False
             setpoint_traj = launch_trajectory.trajectory
