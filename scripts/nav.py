@@ -6,6 +6,7 @@
 # Publishes PoseStamped ball drop start position to 'launch/start_pose'
 # Subscribes to String current vehicle state at 'vehicle_state'
 # Subscribes to Odometry vehicle pose at 'mavros/global_position/local'
+# Subscribes to ArTagLocation tag estimate at 'ar_tag_est'
 # Calls LaunchTrajectory service at 'launch_trajectory'
 
 import rospy
@@ -13,6 +14,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped, Point, Vector3
 from nav_msgs.msg import Odometry
 from qforge_ros.srv import LaunchTrajectory, LaunchTrajectoryRequest
+from qforge_ros.msg import ArTagLocation
 from trajectory_msgs.msg import MultiDOFJointTrajectory
 
 # Fetch node rate parameter
@@ -23,6 +25,8 @@ setpoint_pose = PoseStamped()
 setpoint_traj = MultiDOFJointTrajectory()
 current_pose = PoseStamped()
 state = String()
+target_position = Point()
+wall_normal = Vector3()
 
 # Define zone 3 setpoint
 zone3_pose = PoseStamped()
@@ -41,6 +45,13 @@ def state_callback(msg):
     global state
     state = msg
 
+def tag_callback(msg):
+    # Update best tag position and normal vector
+    global target_position
+    global wall_normal
+    target_position = msg.position_best
+    wall_normal = msg.normal
+
 def navigator():
 
     global state
@@ -53,6 +64,9 @@ def navigator():
     # Define vehicle state and position subscribers
     state_sub = rospy.Subscriber('vehicle_state', String, state_callback)
     pose_sub = rospy.Subscriber('odometry', Odometry, pose_callback)
+
+    # Define ar tag location subscriber
+    tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
 
     # Define target waypoint and trajectory publishers
     target_pose_pub = rospy.Publisher('tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
@@ -71,10 +85,6 @@ def navigator():
     last_msg = rospy.Time.now()
     ball_traj_gen = False
     traj_started = False
-
-    # Hardcode target position
-    target_position = Point(12.5,-3,2)
-    wall_normal = Vector3(-1,0,0)
 
     state = rospy.wait_for_message('vehicle_state', String)
 

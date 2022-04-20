@@ -5,7 +5,7 @@
 # Subscribes to Int16 current zone at 'current_zone'
 # Subscribes to Bool altitude warning at 'alt_state'
 # Subscribes to Bool  emergency status at 'emergency_hold'
-# Subscribes to Bool ar lock at 'camera/ar_lock'
+# Subscribes to ArTagLocation for lock at 'camera/ar_lock'
 # Subscribes to Bool ball_dropped at 'launch/ball_dropped'
 # Subscribes to Bool drop_primed at 'launch/drop_primed'
 # Subscribes to Bool challenge_started at 'challenge_started'
@@ -14,6 +14,7 @@ import rospy
 from std_msgs.msg import String
 from std_msgs.msg import Bool
 from std_msgs.msg import Int16
+from qforge_ros.msg import ArTagLocation
 
 # Fetch node rate parameter
 commander_rate = rospy.get_param('commander_rate',5)
@@ -22,7 +23,8 @@ commander_rate = rospy.get_param('commander_rate',5)
 state = 'takeoff'
 emergency_status = False
 alt_state = False
-ar_lock = True
+ar_detect = False
+ar_lock = False
 ball_dropped = False
 drop_primed = False
 drop_progress = False
@@ -54,6 +56,17 @@ def start_callback(msg):
     global challenge_started
     challenge_started = msg.data
 
+def tag_callback(msg):
+    # Update 'ar_lock' and 'ar_detect' when topic is published
+    # Keep 'ar_lock' at true once lock is achieved
+
+    global ar_lock
+    global ar_detect
+
+    ar_detect = msg.detect
+    if not ar_lock:
+        ar_lock = msg.lock
+
 def commander():
 
     global state
@@ -73,6 +86,9 @@ def commander():
     zone_sub = rospy.Subscriber('current_zone', Int16, zone_callback)
     start_sub = rospy.Subscriber('challenge_started', Bool, start_callback)
 
+    # Define tag subscriber
+    tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
+
     while not rospy.is_shutdown():
 
         # Check is challenge startup is complete
@@ -91,7 +107,11 @@ def commander():
                         elif current_zone == 3:
                             # Switch to Task 3 if tag found, Task 2 if not.
                             if not ar_lock:
-                                state = 'ar_search'
+                                # Refine tag estimate if detected but not locked
+                                if ar_detect:
+                                    state = 'ar_refine'
+                                else:
+                                    state = 'ar_search'
                             else:
                                 # Check if ball has already been dropped
                                 if not ball_dropped:
@@ -112,8 +132,8 @@ def commander():
                     else:
                         state = 'move_to_alt'
                 # Mark takeoff as completed if vehicle moves to altitude
-                elif alt_state:
-                    state = 'takeoff_complete'
+            elif alt_state:
+                state = 'takeoff_complete'
             else:
                 state = 'error'
         else:
