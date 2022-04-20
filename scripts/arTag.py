@@ -11,7 +11,7 @@ import numpy as np
 from sensor_msgs.msg import Image
 from std_msgs.msg import String, Bool, Int16
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Point, Vector3
 from geometry_msgs.msg import PoseStamped
 from qforge_ros.msg import ArTagLocation
 from tf.transformations import quaternion_matrix
