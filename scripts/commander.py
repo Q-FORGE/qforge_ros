@@ -49,7 +49,7 @@ def zone_callback(msg):
     global current_zone
     current_zone = msg.data
 
-def challenge_started(msg):
+def start_callback(msg):
     # Update 'challenge_started' when topic is published
     global challenge_started
     challenge_started = msg.data
