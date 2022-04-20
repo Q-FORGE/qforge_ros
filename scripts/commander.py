@@ -6,6 +6,8 @@
 # Subscribes to Bool altitude warning at 'alt_state'
 # Subscribes to Bool  emergency status at 'emergency_hold'
 # Subscribes to Bool ar lock at 'camera/ar_lock'
+# Subscribes to Bool ball_dropped at 'launch/ball_dropped'
+# Subscribes to Bool drop_primed at 'launch/drop_primed'
 
 import rospy
 from std_msgs.msg import String
@@ -19,7 +21,10 @@ commander_rate = rospy.get_param('commander_rate',5)
 state = 'takeoff'
 emergency_status = False
 alt_state = False
-ar_lock = False
+ar_lock = True
+ball_dropped = False
+drop_primed = False
+drop_progress = False
 current_zone = 1
 
 def alt_callback(msg):
@@ -27,9 +32,25 @@ def alt_callback(msg):
     global alt_state
     alt_state = msg.data
 
+def drop_callback(msg):
+    # Update 'ball_dropped' when topic is published
+    global ball_dropped
+    ball_dropped = msg.data
+
+def ready_callback(msg):
+    # Update 'drop_primed' when topic is published
+    global drop_primed
+    drop_primed = msg.data
+
+def zone_callback(msg):
+    # Update 'current_zone' when topic is published
+    global current_zone
+    current_zone = msg.data
+
 def commander():
 
     global state
+    global drop_progress
 
     # Initialize node
     rospy.init_node('commander')
@@ -37,7 +58,12 @@ def commander():
 
     # Define vehicle state publisher
     state_pub = rospy.Publisher('vehicle_state', String, queue_size = 1)
+
+    # Define subscribers for state booleans and current zone
     alt_sub = rospy.Subscriber('alt_state', Bool, alt_callback)
+    drop_sub = rospy.Subscriber('launch/ball_dropped', Bool, drop_callback)
+    ready_sub = rospy.Subscriber('launch/drop_primed', Bool, ready_callback)
+    zone_sub = rospy.Subscriber('current_zone', Int16, zone_callback)
 
     while not rospy.is_shutdown():
 
@@ -57,7 +83,20 @@ def commander():
                         if not ar_lock:
                             state = 'ar_search'
                         else:
-                            state = 'ball_drop'
+                            # Check if ball has already been dropped
+                            if not ball_dropped:
+                                # Check if drop start position was achieved
+                                if drop_primed:
+                                    state = 'ball_drop'
+                                    drop_progress = True
+                                # Check if ball drop is currently in progress
+                                elif drop_progress:
+                                    state = 'ball_drop'
+                                else:
+                                    state = 'trans_to_drop'
+                            else:
+                                state = 'mission_complete'
+                                drop_progress = False
                     else:
                         state = 'error'
                 else:

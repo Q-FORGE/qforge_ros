@@ -3,6 +3,7 @@
   <group ns="red">
     <include file="$(find qforge_ros)/launch/state_machine.launch"/>
     <include file="$(find qforge_ros)/launch/navigator.launch"/>
+    <include file="$(find qforge_ros)/launch/ball_traj.launch"/>
     <include file="$(find qforge_ros)/launch/ar_tag.launch"/>
   </group>
 </launch>
