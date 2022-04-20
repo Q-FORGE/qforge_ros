@@ -89,7 +89,7 @@ def writeBox(image,pos):
     xMf = pos.x
     yMf = -pos.y
     zMf = pos.z
-    
+
     xL = int(phi*((xMf+np.sqrt(2)*tagsize)/zMf) + 0.5*width)
     yL = -int(phi*((yMf+np.sqrt(2)*tagsize)/zMf) - 0.5*height)
 
@@ -101,7 +101,7 @@ def writeBox(image,pos):
     # cv.imshow("Image window", cv_image)
     # cv.waitKey(3)
     return bridge.cv2_to_imgmsg(cv_image, "bgr8")
-    
+
 
 def arTag():
     # Initialize node
@@ -114,7 +114,7 @@ def arTag():
     final_pos_pub = rospy.Publisher('tag_position_reconstructed', Point, queue_size = 1)
 
     Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
-    R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance 
+    R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance
 
     F = np.identity(3) # state transformation
     H = np.identity(3) # measurment jacobian initialization
@@ -141,16 +141,16 @@ def arTag():
 
     rospy.loginfo("AR tag estimator started")
     while not rospy.is_shutdown():
-        data = rospy.wait_for_message('/ar_point', Point)
+        data = rospy.wait_for_message('ar_point', Point)
         camPos = data
         tagDetect = True
         rtc[0] = data.x
         rtc[1] = data.y
         rtc[2] = data.z
 
-        data2p = rospy.wait_for_message('/red/odometry', Odometry)
+        data2p = rospy.wait_for_message('odometry', Odometry)
         data2 = data2p.pose
-        
+
         q[0] = data2.pose.orientation.w
         q[1] = data2.pose.orientation.x
         q[2] = data2.pose.orientation.y
@@ -171,7 +171,7 @@ def arTag():
         S = np.matmul(H,np.matmul(P_kkm1,np.transpose(H))) + R
         K = np.matmul(P_kkm1, np.matmul(np.transpose(H), np.linalg.inv(S)))
         x_kk = x_kkm1 + np.dot(K, y)
-        P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)  
+        P = np.matmul((np.identity(3) - np.matmul(K, H)), P_kkm1)
         badness = np.amax(np.diag(P))
 
         msg.position.x = x_kk[0]
@@ -189,11 +189,11 @@ def arTag():
         msg.normal.y = norm[1]
         msg.normal.z = norm[2]
 
-        
+
         if badness < Pmin:
             msg.lock = True
             if not imageSnapped:
-                snap = rospy.wait_for_message("red/camera/color/image_raw",Image)
+                snap = rospy.wait_for_message('camera/color/image_raw',Image)
                 image_pub.publish(writeBox(snap,camPos))
                 final_pos_pub.publish(msg.position_best)
                 # image_pub.publish(snap)
@@ -203,8 +203,8 @@ def arTag():
         msg.detect = tagDetect
 
         tag_pub.publish(msg)
-            
-            
+
+
 if __name__ == '__main__':
     try:
         arTag()
