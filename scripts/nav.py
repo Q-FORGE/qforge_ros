@@ -93,7 +93,7 @@ def navigator():
     launch_trajectory_input = LaunchTrajectoryRequest()
 
     # Define sweep service proxy
-    search_routine_serv = rospy.ServiceProx('search_routine',SearchRoutine)
+    search_routine_serv = rospy.ServiceProxy('search_routine',SearchRoutine)
     search_routine_input = SearchRoutineRequest()
 
     # Initialize publishing variables
@@ -146,7 +146,7 @@ def navigator():
                 search_traj_started = True
             else:
                 publish_target = False
-            setpoint_traj = launch_trajectory.trajectory
+            setpoint_traj = search_routine.trajectory
 
         elif state.data == 'ar_refine':
             now = rospy.Time.now()
