@@ -8,6 +8,7 @@
 # Subscribes to Bool ar lock at 'camera/ar_lock'
 # Subscribes to Bool ball_dropped at 'launch/ball_dropped'
 # Subscribes to Bool drop_primed at 'launch/drop_primed'
+# Subscribes to Bool challenge_started at 'challenge_started'
 
 import rospy
 from std_msgs.msg import String
@@ -25,6 +26,7 @@ ar_lock = True
 ball_dropped = False
 drop_primed = False
 drop_progress = False
+challenge_started = False
 current_zone = 1
 
 def alt_callback(msg):
@@ -47,6 +49,11 @@ def zone_callback(msg):
     global current_zone
     current_zone = msg.data
 
+def start_callback(msg):
+    # Update 'challenge_started' when topic is published
+    global challenge_started
+    challenge_started = msg.data
+
 def commander():
 
     global state
@@ -64,48 +71,53 @@ def commander():
     drop_sub = rospy.Subscriber('launch/ball_dropped', Bool, drop_callback)
     ready_sub = rospy.Subscriber('launch/drop_primed', Bool, ready_callback)
     zone_sub = rospy.Subscriber('current_zone', Int16, zone_callback)
+    start_sub = rospy.Subscriber('challenge_started', Bool, start_callback)
 
     while not rospy.is_shutdown():
 
-        # Check if vehicle is in an emergency state
-        if not emergency_status:
-            # Check if vehicle has completed takeoff
-            if not state == 'takeoff':
-                # Check if vehicle is within altitude bounds
-                if alt_state:
-                    # Decide on state based on current zone
-                    if current_zone == 1:
-                        state = 'trans_12'
-                    elif current_zone == 2:
-                        state = 'trans_23'
-                    elif current_zone == 3:
-                        # Switch to Task 3 if tag found, Task 2 if not.
-                        if not ar_lock:
-                            state = 'ar_search'
-                        else:
-                            # Check if ball has already been dropped
-                            if not ball_dropped:
-                                # Check if drop start position was achieved
-                                if drop_primed:
-                                    state = 'ball_drop'
-                                    drop_progress = True
-                                # Check if ball drop is currently in progress
-                                elif drop_progress:
-                                    state = 'ball_drop'
-                                else:
-                                    state = 'trans_to_drop'
+        # Check is challenge startup is complete
+        if challenge_started:
+            # Check if vehicle is in an emergency state
+            if not emergency_status:
+                # Check if vehicle has completed takeoff
+                if not state == 'takeoff':
+                    # Check if vehicle is within altitude bounds
+                    if alt_state:
+                        # Decide on state based on current zone
+                        if current_zone == 1:
+                            state = 'trans_12'
+                        elif current_zone == 2:
+                            state = 'trans_23'
+                        elif current_zone == 3:
+                            # Switch to Task 3 if tag found, Task 2 if not.
+                            if not ar_lock:
+                                state = 'ar_search'
                             else:
-                                state = 'mission_complete'
-                                drop_progress = False
+                                # Check if ball has already been dropped
+                                if not ball_dropped:
+                                    # Check if drop start position was achieved
+                                    if drop_primed:
+                                        state = 'ball_drop'
+                                        drop_progress = True
+                                    # Check if ball drop is currently in progress
+                                    elif drop_progress:
+                                        state = 'ball_drop'
+                                    else:
+                                        state = 'trans_to_drop'
+                                else:
+                                    state = 'mission_complete'
+                                    drop_progress = False
+                        else:
+                            state = 'error'
                     else:
-                        state = 'error'
-                else:
-                    state = 'move_to_alt'
-            # Mark takeoff as completed if vehicle moves to altitude
-            elif alt_state:
-                state = 'takeoff_complete'
+                        state = 'move_to_alt'
+                # Mark takeoff as completed if vehicle moves to altitude
+                elif alt_state:
+                    state = 'takeoff_complete'
+            else:
+                state = 'error'
         else:
-            state = 'error'
+            state = 'waiting_for_start'
 
         state_pub.publish(state)
         rospy.loginfo(state)
