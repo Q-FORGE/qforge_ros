@@ -64,7 +64,7 @@ def tag_callback(msg):
     global ar_detect
 
     ar_detect = msg.detect
-    if not ar_lock
+    if not ar_lock:
         ar_lock = msg.lock
 
 def commander():
