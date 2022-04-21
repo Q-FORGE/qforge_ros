@@ -59,9 +59,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate services in the 'srv' folder
 add_service_files(
-  FILES
-  LaunchTrajectory.srv
-  LaunchTrigger.srv
+  FILES  
+  LaunchStart.srv
+  LaunchManeuver.srv
+  LaunchSight.srv
   SearchRoutine.srv
 )
 
