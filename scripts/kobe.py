@@ -16,7 +16,7 @@ def kobe():
 
     initial_pose = MultiDOFJointTrajectory()
     temp_point = MultiDOFJointTrajectoryPoint()
-    lob_alt = 3.7
+    lob_alt = 3.6
     temp_point.transforms = [Transform(translation=Vector3(7.58,-3,lob_alt),rotation=Quaternion(0,0,0,1))]
     # temp_point.transforms = [Transform(translation=Vector3(8.43,-3,3),rotation=Quaternion(0,0,0,1))]
     initial_pose.points = [temp_point]
@@ -41,8 +41,9 @@ def kobe():
     rospy.sleep(0.95)
 
     magnet_pub.publish(0.0)
-    rospy.sleep(5)
-
+    rospy.sleep(2)
+    magnet_pub.publish(1.0)
+    rospy.sleep(2)
 
 
 if __name__ == '__main__':
