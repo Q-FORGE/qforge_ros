@@ -16,7 +16,7 @@ def kobe():
 
     initial_pose = MultiDOFJointTrajectory()
     temp_point = MultiDOFJointTrajectoryPoint()
-    lob_alt = 3.8
+    lob_alt = 3.7
     temp_point.transforms = [Transform(translation=Vector3(7.58,-3,lob_alt),rotation=Quaternion(0,0,0,1))]
     # temp_point.transforms = [Transform(translation=Vector3(8.43,-3,3),rotation=Quaternion(0,0,0,1))]
     initial_pose.points = [temp_point]
