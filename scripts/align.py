@@ -12,7 +12,7 @@ def align():
 
     initial_trajectory = MultiDOFJointTrajectory()
     p1 = MultiDOFJointTrajectoryPoint()
-    p1.transforms = [Transform(translation=Vector3(0,0,5),rotation=Quaternion(0,0,0,1))]
+    p1.transforms = [Transform(translation=Vector3(0,0,2),rotation=Quaternion(0,0,0,1))]
     p2 = MultiDOFJointTrajectoryPoint()
     wall_dist = 4
     p2.transforms = [Transform(translation=Vector3(12.5-wall_dist,-3,2),rotation=Quaternion(0,0,0,1))]
