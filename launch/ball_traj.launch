@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-  <node name="launch_trajectory" pkg="qforge_ros" type="launch_trajectory.py"/>
-  <node name="launch_trigger" pkg="qforge_ros" type="launch_trigger.py"/>
-</launch>

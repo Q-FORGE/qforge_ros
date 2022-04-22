@@ -169,13 +169,13 @@ def navigator():
             if not ball_traj_gen:
                 ball_traj_gen = True
                 launch_start_input.target_position = target_position
-                launch_trajectory_input.wall_normal = wall_normal
+                launch_start_input.wall_normal = wall_normal
                 launch_start = launch_start_serv(launch_start_input)
                 start_pose_pub.publish(launch_start.start_point)
                 publish_target = True
             if (now.secs - last_msg.secs > 1.):
                 publish_target = True
-            setpoint_pose = launch_trajectory.start_point
+            setpoint_pose = launch_start.start_point
 
         elif state.data == 'ball_drop':
             publish_traj = False
