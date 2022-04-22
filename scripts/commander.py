@@ -6,7 +6,7 @@
 # Subscribes to Bool altitude warning at 'alt_state'
 # Subscribes to Bool  emergency status at 'emergency_hold'
 # Subscribes to ArTagLocation for lock at 'camera/ar_lock'
-# Subscribes to Bool ball_dropped at 'launch/ball_dropped'
+# Subscribes to Bool ball_dropped at 'launch/trigger'
 # Subscribes to Bool drop_primed at 'launch/drop_primed'
 # Subscribes to Bool challenge_started at 'challenge_started'
 
@@ -81,7 +81,7 @@ def commander():
 
     # Define subscribers for state booleans and current zone
     alt_sub = rospy.Subscriber('alt_state', Bool, alt_callback)
-    drop_sub = rospy.Subscriber('launch/ball_dropped', Bool, drop_callback)
+    drop_sub = rospy.Subscriber('launch/trigger', Bool, drop_callback)
     ready_sub = rospy.Subscriber('launch/drop_primed', Bool, ready_callback)
     zone_sub = rospy.Subscriber('current_zone', Int16, zone_callback)
     start_sub = rospy.Subscriber('challenge_started', Bool, start_callback)

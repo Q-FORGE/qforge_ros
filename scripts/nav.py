@@ -7,14 +7,17 @@
 # Subscribes to String current vehicle state at 'vehicle_state'
 # Subscribes to Odometry vehicle pose at 'mavros/global_position/local'
 # Subscribes to ArTagLocation tag estimate at 'ar_tag_est'
-# Calls LaunchTrajectory service at 'launch_trajectory'
+# Calls LaunchStart service at 'launch_start'
+# Calls LaunchManeuver service at 'launch_maneuver'
+# Calls SearchRoutine service at 'search_routine'
 
 import rospy
 from math import isclose
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped, Point, Vector3, Quaternion
 from nav_msgs.msg import Odometry
-from qforge_ros.srv import LaunchTrajectory, LaunchTrajectoryRequest, \
+from qforge_ros.srv import LaunchStart, LaunchStartRequest, \
+        LaunchManeuver, LaunchManeuverRequest, \
         SearchRoutine, SearchRoutineRequest
 from qforge_ros.msg import ArTagLocation
 from trajectory_msgs.msg import MultiDOFJointTrajectory
@@ -88,9 +91,11 @@ def navigator():
     # Define ball drop start position publisher
     start_pose_pub = rospy.Publisher('launch/start_pose', PoseStamped, queue_size = 1, latch = True)
 
-    # Define launch service proxy
-    launch_trajectory_gen_serv = rospy.ServiceProxy('launch_trajectory',LaunchTrajectory)
-    launch_trajectory_input = LaunchTrajectoryRequest()
+    # Define launch service proxies
+    launch_start_serv = rospy.ServiceProxy('launch_start',LaunchStart)
+    launch_start_input = LaunchStartRequest()
+    launch_maneuver_serv = rospy.ServiceProxy('launch_maneuver',LaunchManeuver)
+    launch_maneuver_input = LaunchManeuverRequest()
 
     # Define sweep service proxy
     search_routine_serv = rospy.ServiceProxy('search_routine',SearchRoutine)
@@ -163,24 +168,21 @@ def navigator():
             publish_traj = False
             if not ball_traj_gen:
                 ball_traj_gen = True
-                launch_trajectory_input.target_position = target_position
-                launch_trajectory_input.wall_normal = wall_normal
-                launch_trajectory = launch_trajectory_gen_serv(launch_trajectory_input)
-                start_pose_pub.publish(launch_trajectory.start_point)
+                launch_start_input.target_position = target_position
+                launch_start_input.wall_normal = wall_normal
+                launch_start = launch_start_serv(launch_start_input)
+                start_pose_pub.publish(launch_start.start_point)
                 publish_target = True
             if (now.secs - last_msg.secs > 1.):
                 publish_target = True
-            setpoint_pose = launch_trajectory.start_point
+            setpoint_pose = launch_start.start_point
 
         elif state.data == 'ball_drop':
-            now = rospy.Time.now()
-            publish_traj = True
-            if not ball_traj_started:
-                publish_target = True
-                ball_traj_started = True
-            else:
-                publish_target = False
-            setpoint_traj = launch_trajectory.trajectory
+            publish_traj = False
+            publish_target = False
+            launch_maneuver_input.target_position = target_position
+            launch_maneuver_input.wall_normal = wall_normal
+            launch_maneuver = launch_maneuver_serv(launch_maneuver_input)
 
         if publish_target:
             if publish_traj:
