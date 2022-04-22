@@ -9,7 +9,7 @@ from std_msgs.msg import Bool,Float32,String
 from qforge_ros.msg import ArTagLocation
 from qforge_ros.srv import LaunchSight, LaunchSightRequest
 
-launch_gunner_rate = rospy.get_param('launch_gunner_rate',60)
+launch_gunner_rate = rospy.get_param('launch_gunner_rate',200)
 
 # initialize variables
 state = String()
@@ -33,7 +33,7 @@ def tag_callback(msg):
 def launch_gunner():
     # initialize variables
     global state,target_position, wall_normal,ball_odometry,info_received
-    tolerance = 0.05;
+    tolerance = 0.1;
     trigger = False
     launch_sight_input = LaunchSightRequest()
 
@@ -43,12 +43,12 @@ def launch_gunner():
 
     # define publisher
     gunner_pub = rospy.Publisher('launch/gunner_status', String, queue_size=1,latch=True)
-    error_pub = rospy.Publisher('launch/error', Vector3, queue_size=1)
+    error_pub = rospy.Publisher('launch/error', Float32, queue_size=1)
     trigger_pub = rospy.Publisher('launch/trigger', Bool, queue_size=1,latch=True)
     magnet_pub = rospy.Publisher('uav_magnet/gain', Float32, queue_size=1,latch=True)
 
     # define subscriber
-    rospy.Subscriber('ball/odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
+    rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
     rospy.Subscriber('vehicle_state', String, state_callback)
     rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
 
@@ -80,12 +80,12 @@ def launch_gunner():
             # if error is not np.NaN
             if not (error[0,0] != error[0,0]):
                 # update tirgger flag and launch ball if the error is smaller than tolerance
-                if abs(error@np.array([[0,0,1]]).T)<tolerance:
+                if np.sqrt(error@error.T)<tolerance:
                     trigger = Bool(True)
                     magnet_pub.publish(0.0)
 
             # publish error and trigger flag
-            error_pub.publish(launch_sight.error)
+            error_pub.publish(Float32(np.sqrt(error@error.T)))
             trigger_pub.publish(trigger)
 
             rate.sleep()
