@@ -13,12 +13,20 @@ t_end = 5; # check ball trajectry in the next t_end second
 response = LaunchSightResponse()
 
 def calculate_launch_sight(req):
-    ball_position = np.array([[req.odometry.pose.pose.position.x,req.odometry.pose.pose.position.y,\
+
+    uav_pos_i = np.array([[req.odometry.pose.pose.position.x,req.odometry.pose.pose.position.y,\
         req.odometry.pose.pose.position.z]])
-    r = R.from_quat([req.odometry.pose.pose.orientation.x,req.odometry.pose.pose.orientation.y,\
+    C_ib = R.from_quat([req.odometry.pose.pose.orientation.x,req.odometry.pose.pose.orientation.y,\
         req.odometry.pose.pose.orientation.z,req.odometry.pose.pose.orientation.w])
-    ball_velocity = r.apply([[req.odometry.twist.twist.linear.x,req.odometry.twist.twist.linear.y,\
+    uav_vel_i = C_ib.apply([[req.odometry.twist.twist.linear.x,req.odometry.twist.twist.linear.y,\
         req.odometry.twist.twist.linear.z]])
+    uav_omega_i = C_ib.apply([[req.odometry.twist.twist.angular.x,req.odometry.twist.twist.angular.y,\
+        req.odometry.twist.twist.angular.z]])
+    r_qs_i = C_ib.apply([[0,0,-0.4]])
+
+    ball_position = uav_pos_i + r_qs_i
+    ball_velocity = uav_vel_i + np.cross(uav_omega_i,r_qs_i)
+
     target_position = np.array([[req.target_position.x,req.target_position.y,req.target_position.z]])
     wall_normal = np.array([[req.wall_normal.x,req.wall_normal.y,req.wall_normal.z]])
 

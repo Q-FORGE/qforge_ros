@@ -46,6 +46,7 @@ def perform_launch_maneuver(req):
     end_point.velocities = [Twist()]
     end_point.accelerations = [Twist()]
     
+    rospy.sleep(1)
     pos_ctr_pub.publish(launch_point)
     rospy.sleep(t_accel)
     pos_ctr_pub.publish(end_point)

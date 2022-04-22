@@ -9,8 +9,8 @@ from std_msgs.msg import Bool,String
 from geometry_msgs.msg import Point,Vector3,Transform,Quaternion,Twist,PoseStamped
 from trajectory_msgs.msg import MultiDOFJointTrajectoryPoint
 
-target_position = Point(12.5,-3,2)
-wall_normal = Vector3(-1,0,0)
+target_position = Point(9,-7.5,2.5)
+wall_normal = Vector3(0,1,0)
 
 trigger = False
 state = 'takeoff'
