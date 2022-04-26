@@ -26,7 +26,7 @@ except ImportError:
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',5e-1)
+Pmin = rospy.get_param('arTag_lock_lim',1e-1)
 
 class quat:
     def __init__(self,q):
@@ -38,15 +38,17 @@ class quat:
         qj = self.q[2]
         qk = self.q[3]
 
-        self.R[0,0] = 1 - 2*(qj**2 + qk**2)
-        self.R[0,1] = 2*(qi*qj-qk*qr)
-        self.R[0,2] = 2*(qi*qk + qj*qr)
-        self.R[1,0] = 2*(qi*qj + qk*qr)
-        self.R[1,1] = 1 - 2*(qi**2 + qk**2)
-        self.R[1,2] = 2*(qj*qk - qi*qr)
-        self.R[2,0] = 2*(qi*qk - qj*qr)
-        self.R[2,1] = 2*(qj*qk + qi*qr)
-        self.R[2,2] = 1 - 2*(qi**2 + qj**2)
+        s = np.linalg.norm(self.q)**(-2)
+
+        self.R[0,0] = 1 - 2*s*(qj**2 + qk**2)
+        self.R[0,1] = 2*s*(qi*qj-qk*qr)
+        self.R[0,2] = 2*s*(qi*qk + qj*qr)
+        self.R[1,0] = 2*s*(qi*qj + qk*qr)
+        self.R[1,1] = 1 - 2*s*(qi**2 + qk**2)
+        self.R[1,2] = 2*s*(qj*qk - qi*qr)
+        self.R[2,0] = 2*s*(qi*qk - qj*qr)
+        self.R[2,1] = 2*s*(qj*qk + qi*qr)
+        self.R[2,2] = 1 - 2*s*(qi**2 + qj**2)
 
 def getNorm(xt,yt):
     x1 = 12.5
@@ -55,27 +57,34 @@ def getNorm(xt,yt):
     x2 = 12.5
     y2 = 7.5
 
-    x3 = 1
+    x3 = 1.0
     y3 = 7.5
 
-    x4 = 1
+    x4 = 1.0
     y4 = -7.5
 
     def lineDist(xs,ys,xe,ye,xi,yi):
         return abs((xe-xs)*(ys-yi) - (xs-xi)*(ye-ys)) / np.sqrt((xe-xs)**2 + (ye-ys)**2)
 
-    d1 = lineDist(x1,y1,x2,x2,xt,yt)
-    d2 = lineDist(x2,y2,x3,x3,xt,yt)
-    d3 = lineDist(x3,y3,x4,x4,xt,yt)
-    d4 = lineDist(x4,y4,x1,x1,xt,yt)
+    # d1 = lineDist(x1,y1,x2,x2,xt,yt)
+    # d2 = lineDist(x2,y2,x3,x3,xt,yt)
+    # d3 = lineDist(x3,y3,x4,x4,xt,yt)
+    # d4 = lineDist(x4,y4,x1,x1,xt,yt)
 
-    if d1 <= d2 and d1 <= d3 and d1 <= d4:
+    d1 = abs(x1-xt)
+    d2 = abs(y2-yt)
+    d3 = abs(x4-xt)
+    d4 = abs(y1-yt)
+
+    # rospy.logwarn(" d1: " + str(d1) + " d2: " + str(d2) + " d3: " + str(d3) + " d4: " + str(d4))
+
+    if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
         return [-1,0,0]
-    elif d2 <= d1 and d2 <= d3 and d2 <= d4:
+    elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
         return [0,-1,0]
-    elif d3 <= d1 and d3 <= d2 and d3 <= d4:
+    elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
         return [1,0,0]
-    elif d4 <= d1 and d4 <= d2 and d4 <= d3:
+    elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
         return [0,1,0]
 
 def writeBox(image,pos):
@@ -96,7 +105,6 @@ def writeBox(image,pos):
     xR = int(phi*((xMf-np.sqrt(2)*tagsize)/zMf) + 0.5*width)
     yR = -int(phi*((yMf-np.sqrt(2)*tagsize)/zMf) - 0.5*height)
 
-    # rospy.logwarn(" xL: " + str(xL) + " xR: " + str(xR) + " yR: " + str(yL) + " yR: " + str(yR))
     cv.rectangle(cv_image,(xL,yL),(xR,yR),(0,255,0),5)
     # cv.imshow("Image window", cv_image)
     # cv.waitKey(3)
@@ -155,10 +163,10 @@ def arTag():
         q[1] = data2.pose.orientation.x
         q[2] = data2.pose.orientation.y
         q[3] = data2.pose.orientation.z
-        q_cls = quat(q)
+        q_cls = quat(q) 
         q_cls.calc_rot()
         Cbi = q_cls.R
-        H = np.transpose(np.matmul(Ccb,Cbi))
+        H = np.transpose(np.matmul(Cbi,Ccb))
 
         rbi[0] = data2.pose.position.x
         rbi[1] = data2.pose.position.y
