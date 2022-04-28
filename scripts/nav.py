@@ -14,13 +14,13 @@
 import rospy
 from math import isclose
 from std_msgs.msg import String
-from geometry_msgs.msg import PoseStamped, Point, Vector3, Quaternion
+from geometry_msgs.msg import PoseStamped, Point, Vector3, Quaternion, Twist, Transform
 from nav_msgs.msg import Odometry
 from qforge_ros.srv import LaunchStart, LaunchStartRequest, \
         LaunchManeuver, LaunchManeuverRequest, \
         SearchRoutine, SearchRoutineRequest
 from qforge_ros.msg import ArTagLocation
-from trajectory_msgs.msg import MultiDOFJointTrajectory
+from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectoryPoint
 
 # Fetch node rate parameter
 nav_rate = rospy.get_param('nav_rate',10)
@@ -29,6 +29,9 @@ refine_spacing = rospy.get_param('refine_spacing',2)
 # Initialize variables
 setpoint_pose = PoseStamped()
 setpoint_traj = MultiDOFJointTrajectory()
+setpoint_point = MultiDOFJointTrajectoryPoint()
+setpoint_point.velocities = [Twist()]
+setpoint_point.accelerations = [Twist()]
 current_pose = PoseStamped()
 state = String()
 target_position = Point()
@@ -85,7 +88,7 @@ def navigator():
     tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
 
     # Define target waypoint and trajectory publishers
-    target_pose_pub = rospy.Publisher('tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
+    target_pose_pub = rospy.Publisher('position_hold/trajectory', MultiDOFJointTrajectoryPoint, queue_size = 1, latch = True)
     target_traj_pub = rospy.Publisher('tracker/input_trajectory', MultiDOFJointTrajectory, queue_size = 1, latch = True)
 
     # Define ball drop start position publisher
@@ -188,7 +191,11 @@ def navigator():
             if publish_traj:
                 target_traj_pub.publish(setpoint_traj)
             else:
-                target_pose_pub.publish(setpoint_pose)
+                target_traj_pub.publish(MultiDOFJointTrajectory())
+                setpoint_point.transforms = [Transform(translation=Vector3(setpoint_pose.pose.position.x,\
+                setpoint_pose.pose.position.y,setpoint_pose.pose.position.z),\
+                rotation=setpoint_pose.pose.orientation)]
+                target_pose_pub.publish(setpoint_point)
             publish_target = False
             last_msg = rospy.Time.now()
 

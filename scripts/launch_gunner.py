@@ -9,7 +9,7 @@ from std_msgs.msg import Bool,Float32,String
 from qforge_ros.msg import ArTagLocation
 from qforge_ros.srv import LaunchSight, LaunchSightRequest
 
-launch_gunner_rate = rospy.get_param('launch_gunner_rate',200)
+launch_gunner_rate = rospy.get_param('launch_gunner_rate',150)
 
 # initialize variables
 state = String()
@@ -49,8 +49,8 @@ def launch_gunner():
 
     # define subscriber
     rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
-    rospy.Subscriber('vehicle_state', String, state_callback)
-    rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
+    rospy.Subscriber('vehicle_state', String, state_callback, queue_size=1, buff_size=2**24)
+    rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback, queue_size=1, buff_size=2**24)
 
     # define service handle
     launch_sight_handle = rospy.ServiceProxy('launch_sight',LaunchSight)
@@ -61,15 +61,11 @@ def launch_gunner():
             # only run main functions if the vehicle is in ball_drop mode
             gunner_pub.publish(String('Active'))
 
-            # update target info and tolerance when first enter ball_drop mode
-            if info_received == False:
-                launch_sight_input.target_position = target_position
-                launch_sight_input.wall_normal = wall_normal
-                # update tolerance for high target
-                if launch_sight_input.target_position.z >= 2.5:
-                    tolerance = tolerance + (1 - tolerance)*(launch_sight_input.target_position.z-2.5)
-                # update first time flag
-                info_received = True
+            launch_sight_input.target_position = target_position
+            launch_sight_input.wall_normal = wall_normal
+            # update tolerance for high target
+            if launch_sight_input.target_position.z >= 2.5:
+                tolerance = tolerance + (1 - tolerance)*(launch_sight_input.target_position.z-2.5)
 
             # pass vehicle info to sight and receive launch error
             launch_sight_input.odometry = ball_odometry
