@@ -26,7 +26,8 @@ except ImportError:
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',5e-1)
+Pmin = rospy.get_param('arTag_lock_lim',14e-3)
+
 
 class quat:
     def __init__(self,q):
@@ -121,8 +122,8 @@ def arTag():
     image_pub = rospy.Publisher('tag_image_annotated', Image, queue_size = 1)
     final_pos_pub = rospy.Publisher('tag_position_reconstructed', Point, queue_size = 1)
 
-    Q = np.diag(np.array([0.01, 0.01, 0.01])) # Process covariance
-    R = np.diag(np.array([0.4, 0.4, 0.4])) # Measurment covariance
+    Q = np.diag(np.array([0.001, 0.001, 0.001])) # Process covariance
+    R = np.diag(np.array([0.2, 0.2, 0.2])) # Measurment covariance
 
     F = np.identity(3) # state transformation
     H = np.identity(3) # measurment jacobian initialization
@@ -209,7 +210,7 @@ def arTag():
         else:
             msg.lock = False
         msg.detect = tagDetect
-
+        rospy.logwarn(badness)
         tag_pub.publish(msg)
 
 

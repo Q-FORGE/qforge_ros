@@ -64,9 +64,9 @@ def tag_callback(msg):
 def quat_from_normal(normal):
     # Return quaternion facing normal vector
     if isclose(normal.y, 1., rel_tol = 1e-4):
-        quat = Quaternion(0.,0.,0.7071,0.7071)
-    elif isclose(normal.y, -1., rel_tol = 1e-4):
         quat = Quaternion(0.,0.,-0.7071,0.7071)
+    elif isclose(normal.y, -1., rel_tol = 1e-4):
+        quat = Quaternion(0.,0.,0.7071,0.7071)
     else:
         quat = Quaternion(0.,0.,0.,1.)
     return quat
@@ -163,7 +163,7 @@ def navigator():
                 publish_target = True
             setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
             setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
-            setpoint_pose.pose.position.z = target_position.y + wall_normal.z*refine_spacing
+            setpoint_pose.pose.position.z = target_position.z + wall_normal.z*refine_spacing
             setpoint_pose.pose.orientation = quat_from_normal(wall_normal)
 
         elif state.data == 'trans_to_drop':
