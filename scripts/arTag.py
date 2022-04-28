@@ -26,7 +26,7 @@ except ImportError:
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',1e-1)
+Pmin = rospy.get_param('arTag_lock_lim',5e-1)
 
 class quat:
     def __init__(self,q):

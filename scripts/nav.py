@@ -156,7 +156,7 @@ def navigator():
         elif state.data == 'ar_refine':
             now = rospy.Time.now()
             publish_traj = False
-            if (now.secs - last_msg.sec > 1.):
+            if (now.secs - last_msg.secs > 1.):
                 publish_target = True
             setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
             setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
