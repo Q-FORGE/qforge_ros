@@ -18,7 +18,7 @@ from tf.transformations import quaternion_matrix
 from tf import transformations
 try:
     from cv_bridge import CvBridge
-    from cv2 import imshow
+    # from cv2 import imshow
     import cv2 as cv
 except ImportError:
     rospy.logerr("Open CV dependency not met. Please run 'pip install opencv-python' or rebuild the image")
@@ -27,6 +27,7 @@ except ImportError:
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
 Pmin = rospy.get_param('arTag_lock_lim',1e-1)
+corner_dist = rospy.get_param('min_corner_dist',1.0)
 
 class quat:
     def __init__(self,q):
@@ -79,13 +80,29 @@ def getNorm(xt,yt):
     # rospy.logwarn(" d1: " + str(d1) + " d2: " + str(d2) + " d3: " + str(d3) + " d4: " + str(d4))
 
     if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
-        return [-1,0,0]
+        normVec = [-1,0,0]
     elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
-        return [0,-1,0]
+        normVec = [0,-1,0]
     elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
-        return [1,0,0]
+        normVec = [1,0,0]
     elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
-        return [0,1,0]
+        normVec = [0,1,0]
+
+    # Check for corner case, if found override
+    if np.linalg.norm(np.array([xt,yt]) - np.array([x1,y1])) < corner_dist:
+        normVecNp = np.array([-1,1,0])/np.linalg.norm(np.array([-1,1,0]))
+        normVec = normVecNp.tolist()
+    elif np.linalg.norm(np.array([xt,yt]) - np.array([x2,y2])) < corner_dist:
+        normVecNp = np.array([-1,-1,0])/np.linalg.norm(np.array([-1,-1,0]))
+        normVec = normVecNp.tolist()
+    elif np.linalg.norm(np.array([xt,yt]) - np.array([x3,y3])) < corner_dist:
+        normVecNp = np.array([1,-1,0])/np.linalg.norm(np.array([1,-1,0]))
+        normVec = normVecNp.tolist()
+    elif np.linalg.norm(np.array([xt,yt]) - np.array([x4,y4])) < corner_dist:
+        normVecNp = np.array([1,1,0])/np.linalg.norm(np.array([1,1,0]))
+        normVec = normVecNp.tolist()
+
+    return normVec
 
 def writeBox(image,pos):
     bridge = CvBridge()
