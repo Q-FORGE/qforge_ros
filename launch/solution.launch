@@ -6,5 +6,6 @@
     <include file="$(find qforge_ros)/launch/ball_launch.launch"/>
     <include file="$(find qforge_ros)/launch/ar_tag.launch"/>
     <include file="$(find qforge_ros)/launch/search_routine.launch"/>
+    <include file="$(find qforge_ros)/launch/local_planner_depth-camera.launch"/>
   </group>
 </launch>
