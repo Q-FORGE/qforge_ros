@@ -7,6 +7,7 @@
 # Subscribes to String current vehicle state at 'vehicle_state'
 # Subscribes to Odometry vehicle pose at 'mavros/global_position/local'
 # Subscribes to ArTagLocation tag estimate at 'ar_tag_est'
+# Subscribes to PoseStamped planner target pose at 'local_planner_manager/output_pose'
 # Calls LaunchStart service at 'launch_start'
 # Calls LaunchManeuver service at 'launch_maneuver'
 # Calls SearchRoutine service at 'search_routine'
@@ -36,12 +37,7 @@ current_pose = PoseStamped()
 state = String()
 target_position = Point()
 wall_normal = Vector3()
-
-# Define zone 3 setpoint
-zone3_pose = PoseStamped()
-zone3_pose.pose.position.x = 3
-zone3_pose.pose.position.y = 0
-zone3_pose.pose.position.z = 3
+planner_pose = PoseStamped()
 
 def pose_callback(msg):
     # Update current pose from mavros local position
@@ -53,6 +49,11 @@ def state_callback(msg):
     # Fetch most recent state from commander
     global state
     state = msg
+
+def planner_callback(msg):
+    # Update local planner pose setpoint
+    global planner_pose
+    planner_pose = msg
 
 def tag_callback(msg):
     # Update best tag position and normal vector
@@ -83,6 +84,7 @@ def navigator():
     # Define vehicle state and position subscribers
     state_sub = rospy.Subscriber('vehicle_state', String, state_callback)
     pose_sub = rospy.Subscriber('odometry', Odometry, pose_callback)
+    planner_pose_sub = rospy.Subscriber('local_planner_manager/output_pose', PoseStamped, planner_callback)
 
     # Define ar tag location subscriber
     tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
@@ -126,16 +128,16 @@ def navigator():
         elif state.data == 'trans_12':
             now = rospy.Time.now()
             publish_traj = False
-            if (now.secs - last_msg.secs > 1.):
+            if (now.secs - last_msg.secs > 0.5):
                 publish_target = True
-            setpoint_pose = zone3_pose
+            setpoint_pose = planner_pose
 
         elif state.data == 'trans_23':
             now = rospy.Time.now()
             publish_traj = False
-            if (now.secs - last_msg.secs > 1.):
+            if (now.secs - last_msg.secs > 0.5):
                 publish_target = True
-            setpoint_pose = zone3_pose
+            setpoint_pose = planner_pose
 
         elif state.data == 'ar_search':
             now = rospy.Time.now()
