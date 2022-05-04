@@ -131,14 +131,14 @@ def navigator():
             publish_traj = True
             if (now.secs - last_msg.secs > 0.5):
                 publish_target = True
-            setpoint_pose = planner_traj
+            setpoint_traj = planner_traj
 
         elif state.data == 'trans_23':
             now = rospy.Time.now()
             publish_traj = True
             if (now.secs - last_msg.secs > 0.5):
                 publish_target = True
-            setpoint_pose = planner_traj
+            setpoint_traj = planner_traj
 
         elif state.data == 'ar_search':
             now = rospy.Time.now()
