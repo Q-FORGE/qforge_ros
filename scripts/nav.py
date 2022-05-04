@@ -37,7 +37,8 @@ current_pose = PoseStamped()
 state = String()
 target_position = Point()
 wall_normal = Vector3()
-planner_pose = PoseStamped()
+# planner_pose = PoseStamped()
+planner_traj = MultiDOFJointTrajectory()
 
 def pose_callback(msg):
     # Update current pose from mavros local position
@@ -50,10 +51,10 @@ def state_callback(msg):
     global state
     state = msg
 
-def planner_callback(msg):
+def pathfinder_callback(msg):
     # Update local planner pose setpoint
-    global planner_pose
-    planner_pose = msg
+    global planner_traj
+    planner_traj = msg
 
 def tag_callback(msg):
     # Update best tag position and normal vector
@@ -84,7 +85,7 @@ def navigator():
     # Define vehicle state and position subscribers
     state_sub = rospy.Subscriber('vehicle_state', String, state_callback)
     pose_sub = rospy.Subscriber('odometry', Odometry, pose_callback)
-    planner_pose_sub = rospy.Subscriber('local_planner_manager/output_pose', PoseStamped, planner_callback)
+    planner_pose_sub = rospy.Subscriber('pathfinder/trajectory', MultiDOFJointTrajectory, pathfinder_callback)
 
     # Define ar tag location subscriber
     tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
@@ -127,17 +128,17 @@ def navigator():
 
         elif state.data == 'trans_12':
             now = rospy.Time.now()
-            publish_traj = False
+            publish_traj = True
             if (now.secs - last_msg.secs > 0.5):
                 publish_target = True
-            setpoint_pose = planner_pose
+            setpoint_pose = planner_traj
 
         elif state.data == 'trans_23':
             now = rospy.Time.now()
-            publish_traj = False
+            publish_traj = True
             if (now.secs - last_msg.secs > 0.5):
                 publish_target = True
-            setpoint_pose = planner_pose
+            setpoint_pose = planner_traj
 
         elif state.data == 'ar_search':
             now = rospy.Time.now()
