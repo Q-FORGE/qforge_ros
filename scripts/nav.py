@@ -25,7 +25,7 @@ from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectory
 
 # Fetch node rate parameter
 nav_rate = rospy.get_param('nav_rate',10)
-refine_spacing = rospy.get_param('refine_spacing',2)
+refine_spacing = rospy.get_param('refine_spacing',3)
 
 # Initialize variables
 setpoint_pose = PoseStamped()
