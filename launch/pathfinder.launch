@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="path_finder" pkg="qforge_ros" type="pathfinder.py"/>
+
+</launch>
