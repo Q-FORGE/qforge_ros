@@ -55,6 +55,7 @@ def pathfinder_callback(msg):
     # Update local planner pose setpoint
     global planner_traj
     planner_traj = msg
+    new_astar_traj = True
 
 def tag_callback(msg):
     # Update best tag position and normal vector
@@ -115,6 +116,7 @@ def navigator():
     search_traj_gen = False
     ball_traj_started = False
     search_traj_started = False
+    new_astar_traj = False
 
     state = rospy.wait_for_message('vehicle_state', String)
 
@@ -129,15 +131,17 @@ def navigator():
         elif state.data == 'trans_12':
             now = rospy.Time.now()
             publish_traj = True
-            if (now.secs - last_msg.secs > 3):
+            if new_astar_traj:
                 publish_target = True
+                new_astar_traj = False
             setpoint_traj = planner_traj
 
         elif state.data == 'trans_23':
             now = rospy.Time.now()
             publish_traj = True
-            if (now.secs - last_msg.secs > 3):
+            if new_astar_traj:
                 publish_target = True
+                new_astar_traj = False
             setpoint_traj = planner_traj
 
         elif state.data == 'ar_search':
