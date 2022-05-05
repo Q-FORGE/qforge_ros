@@ -51,20 +51,10 @@ def pointcloud_callback(msg):
     # xyz_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(msg)
 
     for point in sensor_msgs.point_cloud2.read_points(msg, skip_nans=True):
-            if point[2] > altitude_min:
+            min_dist_pc2 = 0.8 #m
+            if (point[2] > altitude_min) and ((point[0]-uav_pos[0])**2 + (point[1]-uav_pos[1])**2 > min_dist_pc2**2):
                 battleShip.add_world_to_grid(point[0],point[1])
 
-    # sz = xyz_array.shape
-    # rw = sz[0]
-    # elements = sz[1] 
-    # for i in range(0, elements):
-    #     height = xyz_array[i,2]
-    #     if height > altitude_min:
-    #         rospy.logerr(xyz_array[i,0])
-    #         rospy.logerr(xyz_array[i,1])
-    #         rospy.logerr(xyz_array[i,2])
-    #         rospy.logerr("-------------")
-    #         battleShip.add_world_to_grid(xyz_array[i,0],xyz_array[i,1])
 
 def odometry_callback(msg):
     global uav_pos

@@ -155,6 +155,8 @@ def arTag():
 
     badness_old = 20
 
+    tag_hits = 0
+
 
     rospy.Subscriber('current_zone', Int16, current_zone_callback, queue_size=1, buff_size=2**24)
 
@@ -162,7 +164,8 @@ def arTag():
     while not rospy.is_shutdown():
         data = rospy.wait_for_message('ar_point', Point)
         camPos = data
-        if zone_num == 3:
+        tag_hits = tag_hits + 1
+        if zone_num == 3 and tag_hits > 1:
             tagDetect = True
         else:
             tagDetect = False
