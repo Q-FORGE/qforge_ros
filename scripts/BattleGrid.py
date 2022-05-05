@@ -53,7 +53,7 @@ class BattleGrid:
 
         self.sparsity_m = sparsity_m
 
-        self.safe_rad_m = 0.85
+        self.safe_rad_m = 1.
         self.safe_rad_cells = int(self.safe_rad_m/self.sparsity_m)
 
         self.grid_size_x = int(x_length_m / sparsity_m)
@@ -113,7 +113,7 @@ class BattleGrid:
 
     def add_world_to_grid(self,world_x_m, world_y_m):
 
-        if world_x_m > -8 and world_x_m < 1:
+        if True: #world_x_m > -8 and world_x_m < 1:
             grid_loc = self.world_to_gridLoc(world_x_m,world_y_m)
         else:
             grid_loc = 'nan'
