@@ -32,7 +32,7 @@ def tag_callback(msg):
 
 def launch_gunner():
     # initialize variables
-    global state,target_position, wall_normal,ball_odometry,info_received
+    global state, target_position, wall_normal, ball_odometry, info_received
     tolerance = 0.1;
     trigger = False
     launch_sight_input = LaunchSightRequest()
@@ -61,11 +61,15 @@ def launch_gunner():
             # only run main functions if the vehicle is in ball_drop mode
             gunner_pub.publish(String('Active'))
 
-            launch_sight_input.target_position = target_position
-            launch_sight_input.wall_normal = wall_normal
-            # update tolerance for high target
-            if launch_sight_input.target_position.z >= 2.5:
-                tolerance = tolerance + (1 - tolerance)*(launch_sight_input.target_position.z-2.5)
+            # update target info and tolerance when first enter ball_drop mode
+            if info_received == False:
+                launch_sight_input.target_position = target_position
+                launch_sight_input.wall_normal = wall_normal
+                # update tolerance for high target
+                if launch_sight_input.target_position.z >= 2.5:
+                    tolerance = tolerance + (1 - tolerance)*(launch_sight_input.target_position.z-2.5)
+                # update first time flag
+                info_received = True
 
             # pass vehicle info to sight and receive launch error
             launch_sight_input.odometry = ball_odometry
