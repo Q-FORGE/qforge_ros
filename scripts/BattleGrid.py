@@ -43,6 +43,7 @@ class BattleGrid:
 
         self.hit_miss_grid = np.zeros(( int(x_length_m / sparsity_m) , int(y_length_m / sparsity_m) ), dtype=np.float32) # Grid marking direct hits from pointcloud
         self.config_space = np.ones(( int(x_length_m / sparsity_m) , int(y_length_m / sparsity_m) ), dtype=np.float32) # Grid marking safe passage routes
+        self.config_space_view = np.ones(( int(x_length_m / sparsity_m) , int(y_length_m / sparsity_m) ), dtype=np.float32) # Grid marking safe passage routes
 
         self.x_length_m = x_length_m
         self.y_length_m = y_length_m
@@ -52,7 +53,7 @@ class BattleGrid:
 
         self.sparsity_m = sparsity_m
 
-        self.safe_rad_m = 0.5
+        self.safe_rad_m = 1
         self.safe_rad_cells = int(self.safe_rad_m/self.sparsity_m)
 
         self.grid_size_x = int(x_length_m / sparsity_m)
@@ -94,7 +95,7 @@ class BattleGrid:
         x_world_m = -grid_i_cont*self.sparsity_m + self.x_topLeftworld_m
         y_world_m = -grid_j_cont*self.sparsity_m + self.y_topLeftworld_m   
 
-        return [x_world_m, y_world_m]
+        return [x_world_m, -y_world_m]
 
     def circle_fill(self,array,i,j,radius,value):
         for ip in range(i-radius, i+radius+1):
@@ -112,12 +113,16 @@ class BattleGrid:
 
     def add_world_to_grid(self,world_x_m, world_y_m):
 
-        grid_loc = self.world_to_gridLoc(world_x_m,world_y_m)
+        if world_x_m > -8 and world_x_m < 1:
+            grid_loc = self.world_to_gridLoc(world_x_m,world_y_m)
+        else:
+            grid_loc = 'nan'
         
         if(grid_loc != 'nan'):
             if(self.hit_miss_grid[grid_loc[0], grid_loc[1]] == 0 and grid_loc[0]):
                 self.hit_miss_grid[grid_loc[0], grid_loc[1]] = 1
                 self.config_space = self.circle_fill(self.config_space, grid_loc[0], grid_loc[1], self.safe_rad_cells,  np.inf)
+                self.config_space_view = self.circle_fill(self.config_space_view, grid_loc[0], grid_loc[1], self.safe_rad_cells,  0)
 
     def getWaypoint(self, uav_x, uav_y, target_x, target_y):
         self.target_world_x = target_x
@@ -136,9 +141,12 @@ class BattleGrid:
         self.current_pos_y_cell = UAV_cell[1]
 
         path = pyastar2d.astar_path(self.config_space, (self.current_pos_x_cell, self.current_pos_y_cell), (self.target_world_x_cell, self.target_world_y_cell), allow_diagonal=False)
-
+        path = path[6:-1]
+        # path = path[10:12]
         self.refPath_world = []
         for i in range(0,len(path)):
             self.refPath_world.append(self.gridLoc_to_world(path[i,0], path[i,1]))
-            # self.config_space[path[i,0], path[i,1]] = 5e25 # REMOVE!!
+            # self.config_space_view = np.copy(self.config_space)
+            # self.config_space_view[self.config_space_view == np.inf] = 0
+            self.config_space_view[path[i,0], path[i,1]] = 0.5 # REMOVE!!
         return path
