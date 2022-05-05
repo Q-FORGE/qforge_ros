@@ -99,11 +99,23 @@ def pathfinder():
         vis_traj.poses = []
         vis_traj.header.frame_id = "world"
         ref_traj.points = []
-        for i in range(0,length):
+        step_skip = 5
+        look_ahead_factor = 1
+
+        for i in range(6,min(step_skip*10,length-step_skip),step_skip):
+            # ref_point = MultiDOFJointTrajectoryPoint()
+            # ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,0,1))]
+            # # print(ref_point)
+            
             ref_point = MultiDOFJointTrajectoryPoint()
-            ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,0,1))]
+            # xi = np.arctan2(path[i+step_skip][1]-path[i][1],path[i+step_skip][0]-path[i][0])
+            xi = 0
+            ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,np.sin(xi/2),np.cos(xi/2)))]
             # print(ref_point)
+            
             ref_traj.points.append(ref_point)
+
+
 
             vis_point = PoseStamped()
             vis_point.pose.position.x = path[i][0]
@@ -118,7 +130,7 @@ def pathfinder():
 
         
         traj_pub.publish(ref_traj)
-        image_pub.publish(bridge.cv2_to_imgmsg(cv.cvtColor(np.array(battleShip.config_space_view*255).astype('uint8'), cv.COLOR_GRAY2BGR), "bgr8"))
+        image_pub.publish(bridge.cv2_to_imgmsg(cv.cvtColor(np.array(battleShip.config_space*255).astype('uint8'), cv.COLOR_GRAY2BGR), "bgr8"))
         path_pub.publish(vis_traj)
         # print(ref_traj)
         rate.sleep()

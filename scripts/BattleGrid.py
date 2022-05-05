@@ -53,7 +53,7 @@ class BattleGrid:
 
         self.sparsity_m = sparsity_m
 
-        self.safe_rad_m = 1
+        self.safe_rad_m = 0.85
         self.safe_rad_cells = int(self.safe_rad_m/self.sparsity_m)
 
         self.grid_size_x = int(x_length_m / sparsity_m)
@@ -143,7 +143,7 @@ class BattleGrid:
 
         path = pyastar2d.astar_path(self.config_space, (self.current_pos_x_cell, self.current_pos_y_cell), (self.target_world_x_cell, self.target_world_y_cell), allow_diagonal=False)
         if path is not None:
-            path = path[6:-1]
+            # path = path[6:-1]
             # path = path[10:12]
             self.refPath_world = []
             for i in range(0,len(path)):
