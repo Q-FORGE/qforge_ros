@@ -54,6 +54,7 @@ def state_callback(msg):
 def pathfinder_callback(msg):
     # Update local planner pose setpoint
     global planner_traj
+    global new_astar_traj
     planner_traj = msg
     new_astar_traj = True
 
@@ -78,6 +79,7 @@ def navigator():
 
     global state
     global setpoint_pose
+    global new_astar_traj
 
     # Initialize node
     rospy.init_node('nav')
