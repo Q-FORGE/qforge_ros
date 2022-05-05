@@ -28,6 +28,9 @@ except ImportError:
 arTag_rate = rospy.get_param('arTag_rate',50)
 Pmin = rospy.get_param('arTag_lock_lim',14e-3)
 
+global zone_num
+zone_num = 1
+
 
 class quat:
     def __init__(self,q):
@@ -111,6 +114,10 @@ def writeBox(image,pos):
     # cv.waitKey(3)
     return bridge.cv2_to_imgmsg(cv_image, "bgr8")
 
+def current_zone_callback(msg):
+    global zone_num
+    zone_num = msg.data
+    
 
 def arTag():
     # Initialize node
@@ -148,11 +155,17 @@ def arTag():
 
     badness_old = 20
 
+
+    rospy.Subscriber('current_zone', Int16, current_zone_callback, queue_size=1, buff_size=2**24)
+
     rospy.loginfo("AR tag estimator started")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message('ar_point', Point)
         camPos = data
-        tagDetect = True
+        if zone_num == 3:
+            tagDetect = True
+        else:
+            tagDetect = False
         rtc[0] = data.x
         rtc[1] = data.y
         rtc[2] = data.z
@@ -191,6 +204,34 @@ def arTag():
             msg.position_best.x = msg.position.x
             msg.position_best.y = msg.position.y
             msg.position_best.z = msg.position.z
+
+            elhc = np.sqrt((msg.position.x - 12.5)**2 + (msg.position.y - 7.5)**2)
+            erhc = np.sqrt((msg.position.x - 12.5)**2 + (msg.position.y + 7.5)**2)
+            e_corner_limit = 1
+
+            x1 = 12.5
+            y1 = -7.5
+
+            y2 = 7.5
+
+            x4 = 1.0
+
+            d1 = abs(x1-msg.position.x)
+            d2 = abs(y2-msg.position.y)
+            d3 = abs(x4-msg.position.x)
+            d4 = abs(y1-msg.position.y)
+
+            if elhc > e_corner_limit and erhc > e_corner_limit:
+                if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
+                    msg.position_best.x = 12.5
+                elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
+                    msg.position_best.y = 7.5
+                elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
+                    msg.position_best.x = 1
+                elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
+                    msg.position_best.y = -7.5
+                
+
             badness_old = badness
 
         norm = getNorm(x_kk[0],x_kk[1])
@@ -210,7 +251,7 @@ def arTag():
         else:
             msg.lock = False
         msg.detect = tagDetect
-        rospy.logwarn(badness)
+        # rospy.logwarn(badness)
         tag_pub.publish(msg)
 
 
