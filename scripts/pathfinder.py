@@ -8,7 +8,6 @@
 # from types import NoneType
 import rospy
 import numpy as np
-import ros_numpy
 # import pyastar2d
 from sensor_msgs.msg import Image, PointCloud2
 import sensor_msgs.point_cloud2
@@ -31,7 +30,7 @@ except ImportError:
 
 
 # Fetch node rate parameter
-pathfinder_rate = rospy.get_param('pathfinder_rate',5)
+pathfinder_rate = rospy.get_param('pathfinder_rate',1)
 
 zone2_wi_x = 25
 zone2_wi_y = 14
@@ -49,7 +48,7 @@ def pointcloud_callback(msg):
     # convert point cloud to grid points
     altitude_min = 1
     # xyz_array = ros_numpy.point_cloud2.get_xyz_points(msg.data)
-    xyz_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(msg)
+    # xyz_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(msg)
 
     for point in sensor_msgs.point_cloud2.read_points(msg, skip_nans=True):
             if point[2] > altitude_min:
