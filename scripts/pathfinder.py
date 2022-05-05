@@ -5,6 +5,7 @@
 # Subscribes to ar tag measurment 'ar_point'
 # Subscribes to odometry '/red/odometry'
 
+# from types import NoneType
 import rospy
 import numpy as np
 import ros_numpy
@@ -13,7 +14,7 @@ from sensor_msgs.msg import Image, PointCloud2
 import sensor_msgs.point_cloud2
 from BattleGrid import BattleGrid
 from std_msgs.msg import String, Bool, Int16
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, Path
 from geometry_msgs.msg import Point, Vector3, Transform, Quaternion, PoseStamped
 # from geometry_msgs.msg import PoseStamped 
 from qforge_ros.msg import ArTagLocation
@@ -78,6 +79,7 @@ def pathfinder():
     rate = rospy.Rate(pathfinder_rate)
 
     traj_pub = rospy.Publisher('pathfinder/trajectory', MultiDOFJointTrajectory, queue_size = 1)
+    path_pub = rospy.Publisher('pathfinder/trajectory_vis', Path, queue_size = 1)
     image_pub = rospy.Publisher('config_space_view', Image, queue_size = 1)
 
     bridge = CvBridge()
@@ -87,21 +89,38 @@ def pathfinder():
 
 
     while not rospy.is_shutdown():
-        battleShip.getWaypoint(uav_pos[0],uav_pos[1],4,0)
+        battleShip.getWaypoint(uav_pos[0],uav_pos[1],10,0)
 
         path = battleShip.refPath_world
+
         length = len(path)
         # print(length)
         ref_traj = MultiDOFJointTrajectory()
+        vis_traj = Path()
+        vis_traj.poses = []
+        vis_traj.header.frame_id = "world"
         ref_traj.points = []
         for i in range(0,length):
             ref_point = MultiDOFJointTrajectoryPoint()
             ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,0,1))]
             # print(ref_point)
             ref_traj.points.append(ref_point)
+
+            vis_point = PoseStamped()
+            vis_point.pose.position.x = path[i][0]
+            vis_point.pose.position.y = path[i][1]
+            vis_point.pose.position.z = 3
+            vis_point.pose.orientation.w = 1
+            vis_point.pose.orientation.x = 0
+            vis_point.pose.orientation.y = 0
+            vis_point.pose.orientation.z = 0
+
+            vis_traj.poses.append(vis_point)
+
         
         traj_pub.publish(ref_traj)
         image_pub.publish(bridge.cv2_to_imgmsg(cv.cvtColor(np.array(battleShip.config_space_view*255).astype('uint8'), cv.COLOR_GRAY2BGR), "bgr8"))
+        path_pub.publish(vis_traj)
         # print(ref_traj)
         rate.sleep()
 

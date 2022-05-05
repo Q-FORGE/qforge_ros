@@ -93,7 +93,7 @@ class BattleGrid:
         grid_j_cont = grid_j + 0.5   
 
         x_world_m = -grid_i_cont*self.sparsity_m + self.x_topLeftworld_m
-        y_world_m = -grid_j_cont*self.sparsity_m + self.y_topLeftworld_m   
+        y_world_m = grid_j_cont*self.sparsity_m - self.y_topLeftworld_m   
 
         return [x_world_m, -y_world_m]
 
@@ -108,7 +108,7 @@ class BattleGrid:
                         inRadCheck = (ip - i)**2 + (jp - j)**2 <= radius**2
                         # print("ip: " + str(ip) + " jp: " + str(jp) + " in rad: " + str(np.sqrt((ip - radius)**2 + (jp - radius)**2)))
                         if inRadCheck and inArrayCheck:
-                            array[ip,jp] = value
+                            array[ip,jp] = array[ip,jp] + value
         return array
 
     def add_world_to_grid(self,world_x_m, world_y_m):
@@ -119,9 +119,10 @@ class BattleGrid:
             grid_loc = 'nan'
         
         if(grid_loc != 'nan'):
-            if(self.hit_miss_grid[grid_loc[0], grid_loc[1]] == 0 and grid_loc[0]):
-                self.hit_miss_grid[grid_loc[0], grid_loc[1]] = 1
-                self.config_space = self.circle_fill(self.config_space, grid_loc[0], grid_loc[1], self.safe_rad_cells,  np.inf)
+            # if(self.hit_miss_grid[grid_loc[0], grid_loc[1]] == 0 and grid_loc[0]):
+            if True:
+                self.hit_miss_grid[grid_loc[0], grid_loc[1]] = self.hit_miss_grid[grid_loc[0], grid_loc[1]] + 1
+                self.config_space = self.circle_fill(self.config_space, grid_loc[0], grid_loc[1], self.safe_rad_cells,  3000)
                 self.config_space_view = self.circle_fill(self.config_space_view, grid_loc[0], grid_loc[1], self.safe_rad_cells,  0)
 
     def getWaypoint(self, uav_x, uav_y, target_x, target_y):
@@ -141,12 +142,13 @@ class BattleGrid:
         self.current_pos_y_cell = UAV_cell[1]
 
         path = pyastar2d.astar_path(self.config_space, (self.current_pos_x_cell, self.current_pos_y_cell), (self.target_world_x_cell, self.target_world_y_cell), allow_diagonal=False)
-        path = path[6:-1]
-        # path = path[10:12]
-        self.refPath_world = []
-        for i in range(0,len(path)):
-            self.refPath_world.append(self.gridLoc_to_world(path[i,0], path[i,1]))
-            # self.config_space_view = np.copy(self.config_space)
-            # self.config_space_view[self.config_space_view == np.inf] = 0
-            self.config_space_view[path[i,0], path[i,1]] = 0.5 # REMOVE!!
-        return path
+        if path is not None:
+            path = path[6:-1]
+            # path = path[10:12]
+            self.refPath_world = []
+            for i in range(0,len(path)):
+                self.refPath_world.append(self.gridLoc_to_world(path[i,0], path[i,1]))
+                # self.config_space_view = np.copy(self.config_space)
+                # self.config_space_view[self.config_space_view == np.inf] = 0
+                self.config_space_view[path[i,0], path[i,1]] = 0.5 # REMOVE!!
+            return path
