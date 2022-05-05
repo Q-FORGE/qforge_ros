@@ -86,6 +86,9 @@ def pathfinder():
     rospy.Subscriber('/local_pointcloud', PointCloud2, pointcloud_callback, queue_size=1, buff_size=2**24)
     rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
 
+    alpha = 0.
+    omega = 3.14/2
+
 
     while not rospy.is_shutdown():
         battleShip.getWaypoint(uav_pos[0],uav_pos[1],10,0)
@@ -101,6 +104,8 @@ def pathfinder():
         ref_traj.points = []
         step_skip = 5
         look_ahead_factor = 1
+        alpha = alpha + omega
+        xi = 2*0.785*np.sin(alpha)
 
         for i in range(6,min(step_skip*10,length-step_skip),step_skip):
             # ref_point = MultiDOFJointTrajectoryPoint()
@@ -109,7 +114,7 @@ def pathfinder():
             
             ref_point = MultiDOFJointTrajectoryPoint()
             # xi = np.arctan2(path[i+step_skip][1]-path[i][1],path[i+step_skip][0]-path[i][0])
-            xi = 0
+            # xi = 0
             ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,np.sin(xi/2),np.cos(xi/2)))]
             # print(ref_point)
             
