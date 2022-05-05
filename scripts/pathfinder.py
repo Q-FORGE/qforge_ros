@@ -10,6 +10,7 @@ import numpy as np
 import ros_numpy
 # import pyastar2d
 from sensor_msgs.msg import Image, PointCloud2
+import sensor_msgs.point_cloud2
 from BattleGrid import BattleGrid
 from std_msgs.msg import String, Bool, Int16
 from nav_msgs.msg import Odometry
@@ -49,18 +50,27 @@ def pointcloud_callback(msg):
     # xyz_array = ros_numpy.point_cloud2.get_xyz_points(msg.data)
     xyz_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(msg)
 
-    sz = xyz_array.shape
-    rw = sz[0]
-    elements = sz[1] 
+    for point in sensor_msgs.point_cloud2.read_points(msg, skip_nans=True):
+            if point[2] > altitude_min:
+                battleShip.add_world_to_grid(point[0],point[1])
 
-    for i in range(0, elements):
-        height = xyz_array[i,2]
-        if height > altitude_min:
-            battleShip.add_world_to_grid(xyz_array[i,0],xyz_array[i,1])
+    # sz = xyz_array.shape
+    # rw = sz[0]
+    # elements = sz[1] 
+    # for i in range(0, elements):
+    #     height = xyz_array[i,2]
+    #     if height > altitude_min:
+    #         rospy.logerr(xyz_array[i,0])
+    #         rospy.logerr(xyz_array[i,1])
+    #         rospy.logerr(xyz_array[i,2])
+    #         rospy.logerr("-------------")
+    #         battleShip.add_world_to_grid(xyz_array[i,0],xyz_array[i,1])
 
 def odometry_callback(msg):
+    global uav_pos
     uav_pos = np.array([msg.pose.pose.position.x,msg.pose.pose.position.y,\
         msg.pose.pose.position.z])
+    
 
 def pathfinder():
     # Initialize node
@@ -68,6 +78,9 @@ def pathfinder():
     rate = rospy.Rate(pathfinder_rate)
 
     traj_pub = rospy.Publisher('pathfinder/trajectory', MultiDOFJointTrajectory, queue_size = 1)
+    image_pub = rospy.Publisher('config_space_view', Image, queue_size = 1)
+
+    bridge = CvBridge()
 
     rospy.Subscriber('/local_pointcloud', PointCloud2, pointcloud_callback, queue_size=1, buff_size=2**24)
     rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
@@ -88,6 +101,7 @@ def pathfinder():
             ref_traj.points.append(ref_point)
         
         traj_pub.publish(ref_traj)
+        image_pub.publish(bridge.cv2_to_imgmsg(cv.cvtColor(np.array(battleShip.config_space_view*255).astype('uint8'), cv.COLOR_GRAY2BGR), "bgr8"))
         # print(ref_traj)
         rate.sleep()
 
