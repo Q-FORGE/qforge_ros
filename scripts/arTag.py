@@ -27,9 +27,16 @@ except ImportError:
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
 Pmin = rospy.get_param('arTag_lock_lim',14e-3)
+# Pmin = rospy.get_param('arTag_lock_lim',14e-10)
 
 global zone_num
 zone_num = 1
+
+global ar_refine_flag
+ar_refine_flag = False
+
+global time_ar_refine
+time_ar_refine = 0
 
 
 class quat:
@@ -117,7 +124,15 @@ def writeBox(image,pos):
 def current_zone_callback(msg):
     global zone_num
     zone_num = msg.data
-    
+
+def vehicle_state_callback(msg):
+    global v_state
+    global ar_refine_flag
+    global time_ar_refine
+    v_state = msg.data
+    if (not ar_refine_flag) and (v_state == "ar_refine"):
+        ar_refine_flag = True
+        time_ar_refine = (rospy.Time.now()).secs
 
 def arTag():
     # Initialize node
@@ -155,14 +170,18 @@ def arTag():
 
     badness_old = 20
 
+    tag_hits = 0
+
 
     rospy.Subscriber('current_zone', Int16, current_zone_callback, queue_size=1, buff_size=2**24)
+    rospy.Subscriber('vehicle_state', String, vehicle_state_callback, queue_size=1, buff_size=2**24)
 
     rospy.loginfo("AR tag estimator started")
     while not rospy.is_shutdown():
         data = rospy.wait_for_message('ar_point', Point)
         camPos = data
-        if zone_num == 3:
+        tag_hits = tag_hits + 1
+        if zone_num == 3 and tag_hits > 1:
             tagDetect = True
         else:
             tagDetect = False
@@ -239,8 +258,10 @@ def arTag():
         msg.normal.y = norm[1]
         msg.normal.z = norm[2]
 
+        wait_lim = 6 # max time to wait for tag
+        outtaTime = ar_refine_flag and ((rospy.Time.now()).secs - time_ar_refine > wait_lim)
 
-        if badness < Pmin:
+        if badness < Pmin or outtaTime:
             msg.lock = True
             if not imageSnapped:
                 snap = rospy.wait_for_message('camera/color/image_raw',Image)
@@ -250,6 +271,7 @@ def arTag():
                 imageSnapped = True
         else:
             msg.lock = False
+    
         msg.detect = tagDetect
         # rospy.logwarn(badness)
         tag_pub.publish(msg)
