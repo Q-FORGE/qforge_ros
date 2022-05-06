@@ -2,6 +2,7 @@
 # service for area 3 sweep
 
 import rospy
+import numpy as np
 from geometry_msgs.msg import Transform,Quaternion,Point, Vector3
 from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectoryPoint
 from qforge_ros.srv import InitialSweep, InitialSweepResponse
@@ -25,12 +26,13 @@ def calculate_initial_sweep(req):
     response = InitialSweepResponse()
     response.trajectory = MultiDOFJointTrajectory()
     response.trajectory.points = []
+    angle = 30*3.14/180
 
     p1 = MultiDOFJointTrajectoryPoint()
     p2 = MultiDOFJointTrajectoryPoint()
     p3 = MultiDOFJointTrajectoryPoint()
-    p1.transforms = [Transform(translation=Vector3(point_left[0],point_left[1],point_left[2]),rotation=Quaternion(0,0,0,1))]
-    p2.transforms = [Transform(translation=Vector3(point_right[0],point_right[1],point_right[2]),rotation=Quaternion(0,0,0,1))]
+    p1.transforms = [Transform(translation=Vector3(point_left[0],point_left[1],point_left[2]),rotation=Quaternion(0,0,np.sin(angle/2),np.cos(angle/2)))]
+    p2.transforms = [Transform(translation=Vector3(point_right[0],point_right[1],point_right[2]),rotation=Quaternion(0,0,np.sin(-angle/2),np.cos(-angle/2)))]
     p3.transforms = [Transform(translation=Vector3(point_center[0],point_center[1],point_center[2]),rotation=Quaternion(0,0,0,1))]
     response.trajectory.points.append(p1)
     response.trajectory.points.append(p2)    
