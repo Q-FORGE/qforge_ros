@@ -30,7 +30,7 @@ import pyastar2d
 
 class BattleGrid:
 
-    def __init__(self, x_length_m, y_length_m, x_topLeftworld_m, y_topLeftworld_m, sparsity_m):
+    def __init__(self, x_length_m, y_length_m, x_topLeftworld_m, y_topLeftworld_m, sparsity_m, prepad_walls=True):
         ### ---- ###
         #   x_length_m: lenght of zone 2 in x
         #   y_length_m: length of zone 2 in y
@@ -72,6 +72,13 @@ class BattleGrid:
         self.current_pos_y_cell = 0  #m current UAV y position
 
         self.refPath_world = []
+
+        self.prepadWalls = prepad_walls
+        if self.prepadWalls:
+            prepad_width = int(self.safe_rad_m/self.sparsity_m)
+            self.config_space[:,0:prepad_width] = 1e6
+            self.config_space[:,-prepad_width:-1] = 1e6
+
 
 
 
