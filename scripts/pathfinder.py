@@ -32,7 +32,7 @@ except ImportError:
 # Fetch node rate parameter
 pathfinder_rate = rospy.get_param('pathfinder_rate',5)
 
-obs_sd = rospy.get_param('obs_safe_dist_m',1.)
+obs_sd = rospy.get_param('obs_safe_dist_m',1.05)
 wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.5)
 
 zone2_wi_x = 25
@@ -43,7 +43,7 @@ sparsity = 0.1
 tlhc_world_x = 12.5
 tlhc_world_y = 7.5
 
-min_dist_pc2_sqr = 0.65**2 #m
+min_dist_pc2_sqr = 0.7**2 #m
 
 bad_pc_tol = 0.05
 
@@ -111,7 +111,7 @@ def pathfinder():
             step_skip = 5
             look_ahead_factor = 1
             alpha = alpha + omega
-            xi = 0.785*np.sin(alpha)
+            xi = 0.75*0.785*np.sin(alpha)
 
             for i in range(8,min(step_skip*10,length-step_skip),step_skip):
                 # ref_point = MultiDOFJointTrajectoryPoint()
