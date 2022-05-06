@@ -41,7 +41,7 @@ tlhc_world_x = 12.5
 tlhc_world_y = 7.5
 
 global uav_pos, battleShip
-battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity) 
+battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity, True) 
 uav_pos = np.array([-10, 0, 3])
 
 def pointcloud_callback(msg):
