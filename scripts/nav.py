@@ -146,7 +146,7 @@ def navigator():
             if not sweep_traj_gen:
                 sweep_traj_gen = True
                 initial_sweep_input.y_bounds = [-7.5,7.5];
-                initial_sweep_input.y_spacing = 1.5
+                initial_sweep_input.y_spacing = 2.5
                 initial_sweep_input.initial_position.x = -10.
                 initial_sweep_input.initial_position.y = 0.
                 initial_sweep_input.initial_position.z = 3.
@@ -157,9 +157,9 @@ def navigator():
                 sweep_traj_started = True
             else:
                 publish_target = False
-            if (now.secs - initial_sweep_time.secs > 7.):
+            if (now.secs - initial_sweep_time.secs > 12.):
                 sweep_complete_pub.publish(True)
-            setpoint_traj = inital_sweep.trajectory
+            setpoint_traj = initial_sweep.trajectory
 
         elif state.data == 'trans_12':
             now = rospy.Time.now()
