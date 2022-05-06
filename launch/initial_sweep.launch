@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="initial_sweep" pkg="qforge_ros" type="initial_sweep.py"/>
+</launch>
