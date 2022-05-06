@@ -132,10 +132,10 @@ def commander():
                                         state = 'ball_drop'
                                         drop_progress = True
                                     # Check if ball drop is currently in progress
-                                elif drop_progress:
-                                    state = 'ball_drop'
-                                else:
-                                    state = 'trans_to_drop'
+                                    elif drop_progress:
+                                        state = 'ball_drop'
+                                    else:
+                                        state = 'trans_to_drop'
                                 else:
                                     state = 'mission_complete'
                                     drop_progress = False

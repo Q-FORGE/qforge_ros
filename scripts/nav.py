@@ -16,7 +16,7 @@
 
 import rospy
 from math import isclose
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from geometry_msgs.msg import PoseStamped, Point, Vector3, Quaternion, Twist, Transform
 from nav_msgs.msg import Odometry
 from qforge_ros.srv import LaunchStart, LaunchStartRequest, \
@@ -116,7 +116,7 @@ def navigator():
     search_routine_serv = rospy.ServiceProxy('search_routine',SearchRoutine)
     search_routine_input = SearchRoutineRequest()
     initial_sweep_serv = rospy.ServiceProxy('initial_sweep',InitialSweep)
-    initial_sweep_input = IntialSweepRequest()
+    initial_sweep_input = InitialSweepRequest()
 
     # Initialize publishing variables
     publish_target = False
@@ -124,7 +124,7 @@ def navigator():
     last_msg = rospy.Time.now()
     ball_traj_gen = False
     search_traj_gen = False
-    sweeo_traj_gen = False
+    sweep_traj_gen = False
     ball_traj_started = False
     search_traj_started = False
     sweep_traj_started = False
@@ -140,7 +140,7 @@ def navigator():
         elif state.data == 'takeoff_complete':
             publish_target = False
 
-        elif state.data == 'initial_sweep_complete':
+        elif state.data == 'initial_sweep':
             now = rospy.Time.now()
             publish_traj = True
             if not sweep_traj_gen:
