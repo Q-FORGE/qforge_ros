@@ -9,6 +9,7 @@
 # Subscribes to Bool ball_dropped at 'launch/trigger'
 # Subscribes to Bool drop_primed at 'launch/drop_primed'
 # Subscribes to Bool challenge_started at 'challenge_started'
+# Subscribes to Bool initial_sweep_complete at 'nav/sweeo_complete'
 
 import rospy
 from std_msgs.msg import String
@@ -23,6 +24,7 @@ commander_rate = rospy.get_param('commander_rate',5)
 state = 'takeoff'
 emergency_status = False
 alt_state = False
+initial_sweep_complete = False
 ar_detect = False
 ar_lock = False
 ball_dropped = False
@@ -56,6 +58,11 @@ def start_callback(msg):
     global challenge_started
     challenge_started = msg.data
 
+def sweep_callback(msg):
+    # Update 'initial_sweep_complete' after nav publishes sweep complete
+    global initial_sweep_complete
+    initial_sweep_complete = msg.data
+
 def tag_callback(msg):
     # Update 'ar_lock' and 'ar_detect' when topic is published
     # Keep 'ar_lock' at true once lock is achieved
@@ -85,6 +92,7 @@ def commander():
     ready_sub = rospy.Subscriber('launch/drop_primed', Bool, ready_callback)
     zone_sub = rospy.Subscriber('current_zone', Int16, zone_callback)
     start_sub = rospy.Subscriber('challenge_started', Bool, start_callback)
+    initial_sweep_sub = rospy.Subscriber('nav/sweep_complete', Bool, sweep_callback)
 
     # Define tag subscriber
     tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
@@ -101,7 +109,11 @@ def commander():
                     if alt_state:
                         # Decide on state based on current zone
                         if current_zone == 1:
-                            state = 'trans_12'
+                            # Perform initial sweep before starting trans to zone 2
+                            if initial_sweep_complete:
+                                state = 'trans_12'
+                            else:
+                                state = 'initial_sweep'
                         elif current_zone == 2:
                             state = 'trans_23'
                         elif current_zone == 3:
@@ -120,10 +132,10 @@ def commander():
                                         state = 'ball_drop'
                                         drop_progress = True
                                     # Check if ball drop is currently in progress
-                                    elif drop_progress:
-                                        state = 'ball_drop'
-                                    else:
-                                        state = 'trans_to_drop'
+                                elif drop_progress:
+                                    state = 'ball_drop'
+                                else:
+                                    state = 'trans_to_drop'
                                 else:
                                     state = 'mission_complete'
                                     drop_progress = False
