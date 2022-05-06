@@ -4,6 +4,7 @@
 # Publishes PoseStamped setpoint to 'tracker/input_pose'
 # Publishes MultiDOFJointTrajectory trajectory setpoint to 'tracker/input_trajectory'
 # Publishes PoseStamped ball drop start position to 'launch/start_pose'
+# Publishes Bool initial_sweep_complete to 'nav/sweep_complete'
 # Subscribes to String current vehicle state at 'vehicle_state'
 # Subscribes to Odometry vehicle pose at 'mavros/global_position/local'
 # Subscribes to ArTagLocation tag estimate at 'ar_tag_est'
@@ -11,6 +12,7 @@
 # Calls LaunchStart service at 'launch_start'
 # Calls LaunchManeuver service at 'launch_maneuver'
 # Calls SearchRoutine service at 'search_routine'
+# Calls InitialSweep service at 'initial_sweep'
 
 import rospy
 from math import isclose
@@ -19,7 +21,8 @@ from geometry_msgs.msg import PoseStamped, Point, Vector3, Quaternion, Twist, Tr
 from nav_msgs.msg import Odometry
 from qforge_ros.srv import LaunchStart, LaunchStartRequest, \
         LaunchManeuver, LaunchManeuverRequest, \
-        SearchRoutine, SearchRoutineRequest
+        SearchRoutine, SearchRoutineRequest, \
+        InitialSweep, InitialSweepRequest
 from qforge_ros.msg import ArTagLocation
 from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectoryPoint
 
@@ -100,15 +103,20 @@ def navigator():
     # Define ball drop start position publisher
     start_pose_pub = rospy.Publisher('launch/start_pose', PoseStamped, queue_size = 1, latch = True)
 
+    # Define sweep complete publisher
+    sweep_complete_pub = rospy.Publisher('nav/sweep_complete', Bool, queue_size = 1, latch = True)
+
     # Define launch service proxies
     launch_start_serv = rospy.ServiceProxy('launch_start',LaunchStart)
     launch_start_input = LaunchStartRequest()
     launch_maneuver_serv = rospy.ServiceProxy('launch_maneuver',LaunchManeuver)
     launch_maneuver_input = LaunchManeuverRequest()
 
-    # Define sweep service proxy
+    # Define sweep service proxies
     search_routine_serv = rospy.ServiceProxy('search_routine',SearchRoutine)
     search_routine_input = SearchRoutineRequest()
+    initial_sweep_serv = rospy.ServiceProxy('initial_sweep',InitialSweep)
+    initial_sweep_input = IntialSweepRequest()
 
     # Initialize publishing variables
     publish_target = False
@@ -116,8 +124,10 @@ def navigator():
     last_msg = rospy.Time.now()
     ball_traj_gen = False
     search_traj_gen = False
+    sweeo_traj_gen = False
     ball_traj_started = False
     search_traj_started = False
+    sweep_traj_started = False
     new_astar_traj = False
 
     state = rospy.wait_for_message('vehicle_state', String)
@@ -129,6 +139,27 @@ def navigator():
 
         elif state.data == 'takeoff_complete':
             publish_target = False
+
+        elif state.data == 'initial_sweep_complete':
+            now = rospy.Time.now()
+            publish_traj = True
+            if not sweep_traj_gen:
+                sweep_traj_gen = True
+                initial_sweep_input.y_bounds = [-7.5,7.5];
+                initial_sweep_input.y_spacing = 1.5
+                initial_sweep_input.initial_position.x = -10.
+                initial_sweep_input.initial_position.y = 0.
+                initial_sweep_input.initial_position.z = 3.
+                initial_sweep = initial_sweep_serv(initial_sweep_input)
+                initial_sweep_time = rospy.Time.now()
+            if not sweep_traj_started:
+                publish_target = True
+                sweep_traj_started = True
+            else:
+                publish_target = False
+            if (now.secs - initial_sweep_time.secs > 7.):
+                sweep_complete_pub.publish(True)
+            setpoint_traj = inital_sweep.trajectory
 
         elif state.data == 'trans_12':
             now = rospy.Time.now()
