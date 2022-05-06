@@ -12,32 +12,30 @@ def calculate_initial_sweep(req):
     initial_x = req.initial_position.x
     initial_y = req.initial_position.y
     initial_z = req.initial_position.z
-    y_bound = req.y_bounds
+    y_bounds = req.y_bounds
     spacing = req.y_spacing
 
     # Define search corners
-    wall_ofst = wall_distance*0.7071
     point_center = [initial_x,initial_y,initial_z]
-    point_right = [initial_x,y_bounds[0]+spacing,inital_z]
-    point_left = [initial_x,y_bounds[1]-spacing,inital_z]
-    
+    point_right = [initial_x,y_bounds[0]+spacing,initial_z]
+    point_left = [initial_x,y_bounds[1]-spacing,initial_z]
+
     # Initialize variables
 
     response = InitialSweepResponse()
     response.trajectory = MultiDOFJointTrajectory()
     response.trajectory.points = []
 
+    p1 = MultiDOFJointTrajectoryPoint()
+    p2 = MultiDOFJointTrajectoryPoint()
+    p3 = MultiDOFJointTrajectoryPoint()
+    p1.transforms = [Transform(translation=Vector3(point_left[0],point_left[1],point_left[2]),rotation=Quaternion(0,0,0,1))]
+    p2.transforms = [Transform(translation=Vector3(point_right[0],point_right[1],point_right[2]),rotation=Quaternion(0,0,0,1))]
+    p3.transforms = [Transform(translation=Vector3(point_center[0],point_center[1],point_center[2]),rotation=Quaternion(0,0,0,1))]
+    response.trajectory.points.append(p1)
+    response.trajectory.points.append(p2)    
+    response.trajectory.points.append(p3)
 
-    
-
-    p = MultiDOFJointTrajectoryPoint()
-    p.transforms = [Transform(translation=Vector3(point_left[0],point_left[1],point_left[2]),rotation=Quaternion(0,0,0,1))]
-    response.trajectory.points.append(p)
-    p.transforms = [Transform(translation=Vector3(point_right[0],point_right[1],point_right[2]),rotation=Quaternion(0,0,0,1))]
-    response.trajectory.points.append(p)
-    p.transforms = [Transform(translation=Vector3(point_center[0],point_center[1],point_center[2]),rotation=Quaternion(0,0,0,1))]
-    response.trajectory.points.append(p)
-        
     return response
 
 def initial_sweep_server():
