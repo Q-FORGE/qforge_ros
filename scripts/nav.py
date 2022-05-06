@@ -146,7 +146,7 @@ def navigator():
             if not sweep_traj_gen:
                 sweep_traj_gen = True
                 initial_sweep_input.y_bounds = [-7.5,7.5];
-                initial_sweep_input.y_spacing = 2.5
+                initial_sweep_input.y_spacing = 3.5
                 initial_sweep_input.initial_position.x = -10.
                 initial_sweep_input.initial_position.y = 0.
                 initial_sweep_input.initial_position.z = 3.
@@ -157,25 +157,31 @@ def navigator():
                 sweep_traj_started = True
             else:
                 publish_target = False
-            if (now.secs - initial_sweep_time.secs > 12.):
+            if (now.secs - initial_sweep_time.secs > 9.):
                 sweep_complete_pub.publish(True)
             setpoint_traj = initial_sweep.trajectory
 
         elif state.data == 'trans_12':
             now = rospy.Time.now()
-            publish_traj = True
+            publish_traj = False
             if new_astar_traj:
                 publish_target = True
                 new_astar_traj = False
-            setpoint_traj = planner_traj
+            setpoint_pose.pose.position.x = planner_traj.points[0].transforms[0].translation.x
+            setpoint_pose.pose.position.y = planner_traj.points[0].transforms[0].translation.y
+            setpoint_pose.pose.position.z = planner_traj.points[0].transforms[0].translation.z
+            setpoint_pose.pose.orientation = planner_traj.points[0].transforms[0].rotation
 
         elif state.data == 'trans_23':
             now = rospy.Time.now()
-            publish_traj = True
+            publish_traj = False
             if new_astar_traj:
                 publish_target = True
                 new_astar_traj = False
-            setpoint_traj = planner_traj
+            setpoint_pose.pose.position.x = planner_traj.points[0].transforms[0].translation.x
+            setpoint_pose.pose.position.y = planner_traj.points[0].transforms[0].translation.y
+            setpoint_pose.pose.position.z = planner_traj.points[0].transforms[0].translation.z
+            setpoint_pose.pose.orientation = planner_traj.points[0].transforms[0].rotation
 
         elif state.data == 'ar_search':
             now = rospy.Time.now()
