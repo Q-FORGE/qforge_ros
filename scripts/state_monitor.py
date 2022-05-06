@@ -18,7 +18,7 @@ from geometry_msgs.msg import Point, PoseStamped
 monitor_rate = rospy.get_param('monitor_rate', 5)
 min_height = rospy.get_param('min_height', 0.5)
 max_height = rospy.get_param('max_height', 6.5)
-drop_start_tol = rospy.get_param('drop_start_tol', 0.2)
+drop_start_tol = rospy.get_param('drop_start_tol', 0.5)
 
 # Initialize state parameters
 alt_state = False
