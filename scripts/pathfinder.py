@@ -32,6 +32,9 @@ except ImportError:
 # Fetch node rate parameter
 pathfinder_rate = rospy.get_param('pathfinder_rate',1)
 
+obs_sd = rospy.get_param('obs_safe_dist_m',1.)
+wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.6)
+
 zone2_wi_x = 25
 zone2_wi_y = 14
 
@@ -46,7 +49,7 @@ bad_pc_tol = 0.05
 
 global uav_pos, battleShip, zone_num
 zone_num = 1
-battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity, True) 
+battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity, True, obs_sd, wall_sd_mod_frac) 
 
 uav_pos = np.array([-10, 0, 3])
 

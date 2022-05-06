@@ -30,7 +30,7 @@ import pyastar2d
 
 class BattleGrid:
 
-    def __init__(self, x_length_m, y_length_m, x_topLeftworld_m, y_topLeftworld_m, sparsity_m, prepad_walls=True):
+    def __init__(self, x_length_m, y_length_m, x_topLeftworld_m, y_topLeftworld_m, sparsity_m, prepad_walls=True, safe_dist=1., wall_safe_mod_frac=0.6):
         ### ---- ###
         #   x_length_m: lenght of zone 2 in x
         #   y_length_m: length of zone 2 in y
@@ -53,7 +53,7 @@ class BattleGrid:
 
         self.sparsity_m = sparsity_m
 
-        self.safe_rad_m = 1.
+        self.safe_rad_m = safe_dist
         self.safe_rad_cells = int(self.safe_rad_m/self.sparsity_m)
 
         self.grid_size_x = int(x_length_m / sparsity_m)
@@ -75,7 +75,7 @@ class BattleGrid:
 
         self.prepadWalls = prepad_walls
         if self.prepadWalls:
-            prepad_width = int(self.safe_rad_m/self.sparsity_m)
+            prepad_width = int((self.safe_rad_m*wall_safe_mod_frac)/self.sparsity_m)
             self.config_space[:,0:prepad_width] = 1e6
             self.config_space[:,-prepad_width:-1] = 1e6
 
