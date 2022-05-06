@@ -15,7 +15,7 @@ from BattleGrid import BattleGrid
 from std_msgs.msg import String, Bool, Int16
 from nav_msgs.msg import Odometry, Path
 from geometry_msgs.msg import Point, Vector3, Transform, Quaternion, PoseStamped
-# from geometry_msgs.msg import PoseStamped 
+# from geometry_msgs.msg import PoseStamped
 from qforge_ros.msg import ArTagLocation
 from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectoryPoint
 from tf.transformations import quaternion_matrix
@@ -30,10 +30,10 @@ except ImportError:
 
 
 # Fetch node rate parameter
-pathfinder_rate = rospy.get_param('pathfinder_rate',1)
+pathfinder_rate = rospy.get_param('pathfinder_rate',5)
 
 obs_sd = rospy.get_param('obs_safe_dist_m',1.)
-wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.6)
+wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.5)
 
 zone2_wi_x = 25
 zone2_wi_y = 14
@@ -49,7 +49,7 @@ bad_pc_tol = 0.05
 
 global uav_pos, battleShip, zone_num
 zone_num = 1
-battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity, True, obs_sd, wall_sd_mod_frac) 
+battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity, True, obs_sd, wall_sd_mod_frac)
 
 uav_pos = np.array([-10, 0, 3])
 
@@ -60,10 +60,10 @@ def pointcloud_callback(msg):
     # xyz_array = ros_numpy.point_cloud2.get_xyz_points(msg.data)
     # xyz_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(msg)
     for point in sensor_msgs.point_cloud2.read_points(msg, skip_nans=True):
-            
+
             if (point[2] > altitude_min) and (point[3]<bad_pc_tol) and ((point[0]-uav_pos[0])**2 + (point[1]-uav_pos[1])**2 > min_dist_pc2_sqr):
                 battleShip.add_world_to_grid(point[0],point[1])
-            
+
 
 def odometry_callback(msg):
     global uav_pos
@@ -73,7 +73,7 @@ def odometry_callback(msg):
 def current_zone_callback(msg):
     global zone_num
     zone_num = msg.data
-    
+
 
 def pathfinder():
     # Initialize node
@@ -92,7 +92,7 @@ def pathfinder():
 
 
     alpha = 0.
-    omega = 3.14/2
+    omega = 3.14/10
 
 
     while not rospy.is_shutdown():
@@ -111,19 +111,19 @@ def pathfinder():
             step_skip = 5
             look_ahead_factor = 1
             alpha = alpha + omega
-            xi = 2*0.785*np.sin(alpha)
+            xi = 0.785*np.sin(alpha)
 
-            for i in range(6,min(step_skip*10,length-step_skip),step_skip):
+            for i in range(8,min(step_skip*10,length-step_skip),step_skip):
                 # ref_point = MultiDOFJointTrajectoryPoint()
                 # ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,0,1))]
                 # # print(ref_point)
-                
+
                 ref_point = MultiDOFJointTrajectoryPoint()
                 # xi = np.arctan2(path[i+step_skip][1]-path[i][1],path[i+step_skip][0]-path[i][0])
                 # xi = 0
-                ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,np.sin(xi/2),np.cos(xi/2)))]
+                ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,-np.sin(xi/2),-np.cos(xi/2)))]
                 # print(ref_point)
-                
+
                 ref_traj.points.append(ref_point)
 
 
@@ -139,7 +139,7 @@ def pathfinder():
 
                 vis_traj.poses.append(vis_point)
 
-            
+
             traj_pub.publish(ref_traj)
             image_pub.publish(bridge.cv2_to_imgmsg(cv.cvtColor(np.array(battleShip.config_space*255).astype('uint8'), cv.COLOR_GRAY2BGR), "bgr8"))
             path_pub.publish(vis_traj)
