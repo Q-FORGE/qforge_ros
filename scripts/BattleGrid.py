@@ -75,9 +75,9 @@ class BattleGrid:
 
         self.prepadWalls = prepad_walls
         if self.prepadWalls:
-            prepad_width = int((self.safe_rad_m*wall_safe_mod_frac)/self.sparsity_m)
-            self.config_space[:,0:prepad_width] = 1e6
-            self.config_space[:,-prepad_width:-1] = 1e6
+            self.prepad_width = int((self.safe_rad_m*wall_safe_mod_frac)/self.sparsity_m)
+            self.config_space[:,0:self.prepad_width] = 1e6
+            self.config_space[:,-self.prepad_width:-1] = 1e6
 
 
 
@@ -120,14 +120,16 @@ class BattleGrid:
 
     def add_world_to_grid(self,world_x_m, world_y_m):
 
-        if True: #world_x_m > -8 and world_x_m < 1:
-            grid_loc = self.world_to_gridLoc(world_x_m,world_y_m)
-        else:
-            grid_loc = 'nan'
+
+        grid_loc = self.world_to_gridLoc(world_x_m,world_y_m)
+
         
         if(grid_loc != 'nan'):
-            # if(self.hit_miss_grid[grid_loc[0], grid_loc[1]] == 0 and grid_loc[0]):
-            if True:
+            if not self.prepadWalls:
+                self.hit_miss_grid[grid_loc[0], grid_loc[1]] = self.hit_miss_grid[grid_loc[0], grid_loc[1]] + 1
+                self.config_space = self.circle_fill(self.config_space, grid_loc[0], grid_loc[1], self.safe_rad_cells,  3000)
+                self.config_space_view = self.circle_fill(self.config_space_view, grid_loc[0], grid_loc[1], self.safe_rad_cells,  0)
+            elif grid_loc[1] > self.prepad_width and grid_loc[1] < (self.grid_size_x - self.prepad_width):
                 self.hit_miss_grid[grid_loc[0], grid_loc[1]] = self.hit_miss_grid[grid_loc[0], grid_loc[1]] + 1
                 self.config_space = self.circle_fill(self.config_space, grid_loc[0], grid_loc[1], self.safe_rad_cells,  3000)
                 self.config_space_view = self.circle_fill(self.config_space_view, grid_loc[0], grid_loc[1], self.safe_rad_cells,  0)
