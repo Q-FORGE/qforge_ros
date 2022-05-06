@@ -32,7 +32,7 @@ except ImportError:
 # Fetch node rate parameter
 pathfinder_rate = rospy.get_param('pathfinder_rate',5)
 
-obs_sd = rospy.get_param('obs_safe_dist_m',1.05)
+obs_sd = rospy.get_param('obs_safe_dist_m',1.1)
 wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.5)
 
 zone2_wi_x = 25
@@ -92,7 +92,7 @@ def pathfinder():
 
 
     alpha = 0.
-    omega = 3.14/10
+    omega = 3.14/8
 
 
     while not rospy.is_shutdown():
