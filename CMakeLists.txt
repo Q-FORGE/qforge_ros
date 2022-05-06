@@ -64,6 +64,7 @@ add_service_files(
   LaunchManeuver.srv
   LaunchSight.srv
   SearchRoutine.srv
+  InitialSweep.srv
 )
 
 ## Generate actions in the 'action' folder

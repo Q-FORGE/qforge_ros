@@ -1,0 +1,5 @@
+geometry_msgs/Point initial_position
+float32[2] y_bounds
+float32 y_spacing
+---
+trajectory_msgs/MultiDOFJointTrajectory trajectory
