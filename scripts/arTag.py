@@ -26,7 +26,7 @@ except ImportError:
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',14e-3)
+Pmin = rospy.get_param('arTag_lock_lim',12e-3)
 # Pmin = rospy.get_param('arTag_lock_lim',14e-10)
 
 global zone_num

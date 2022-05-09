@@ -26,7 +26,7 @@ def calculate_initial_sweep(req):
     response = InitialSweepResponse()
     response.trajectory = MultiDOFJointTrajectory()
     response.trajectory.points = []
-    angle = 30*3.14/180
+    angle = 45*3.14/180
 
     p1 = MultiDOFJointTrajectoryPoint()
     p2 = MultiDOFJointTrajectoryPoint()
