@@ -29,7 +29,7 @@ def calculate_search_trajectory(req):
 
     # Initialize variables
     add_sweep_flag = True   # If true, do another ccw or cw sweep
-    swp_alt = z_bound[0] + 0.5*vertical_range  # Altitude for sweep cycle
+    swp_alt = z_bound[1] - 0.5*vertical_range  # Altitude for sweep cycle
 
     response = SearchRoutineResponse()
     response.trajectory = MultiDOFJointTrajectory()
@@ -84,14 +84,25 @@ def calculate_search_trajectory(req):
             response.trajectory.points.append(p1)
             flag_direction = True
 
-        swp_alt = swp_alt + vertical_range
-        if swp_alt >= z_bound[1]:
-            alt_temp = swp_alt - 0.5* vertical_range
-            if alt_temp < z_bound[1]:
-                # Final additional sweep ensures full area coverage
-                swp_alt = z_bound[1] - 0.5*vertical_range
-            else:
-                add_sweep_flag = False
+
+        if swp_alt <= z_bound[0]+0.5*vertical_range:
+            add_sweep_flag = False
+        
+        
+        swp_alt = swp_alt - vertical_range
+
+        if swp_alt <= z_bound[0]+0.5*vertical_range:
+            swp_alt = z_bound[0] + 0.5*vertical_range
+
+
+
+        # if swp_alt >= z_bound[1]:
+        #     alt_temp = swp_alt - 0.5* vertical_range
+        #     if alt_temp < z_bound[1]:
+        #         # Final additional sweep ensures full area coverage
+        #         swp_alt = z_bound[1] - 0.5*vertical_range
+        #     else:
+        #         add_sweep_flag = False
 
 
     return response

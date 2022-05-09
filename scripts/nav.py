@@ -145,8 +145,8 @@ def navigator():
             publish_traj = True
             if not sweep_traj_gen:
                 sweep_traj_gen = True
-                initial_sweep_input.y_bounds = [-7.5,7.5];
-                initial_sweep_input.y_spacing = 3.5
+                initial_sweep_input.y_bounds = [-7.5,7.5]
+                initial_sweep_input.y_spacing = 4.25
                 initial_sweep_input.initial_position.x = -10.
                 initial_sweep_input.initial_position.y = 0.
                 initial_sweep_input.initial_position.z = 3.
@@ -157,7 +157,7 @@ def navigator():
                 sweep_traj_started = True
             else:
                 publish_target = False
-            if (now.secs - initial_sweep_time.secs > 9.):
+            if (now.secs - initial_sweep_time.secs > 6.):
                 sweep_complete_pub.publish(True)
             setpoint_traj = initial_sweep.trajectory
 
@@ -188,12 +188,12 @@ def navigator():
             publish_traj = True
             if not search_traj_gen:
                 search_traj_gen = True
-                search_routine_input.x_bounds = [1.,12.5];
-                search_routine_input.y_bounds = [-7.5,7.5];
-                search_routine_input.z_bounds = [2.,4.];
-                search_routine_input.wall_dist = 3.
+                search_routine_input.x_bounds = [1.,12.5]
+                search_routine_input.y_bounds = [-7.5,7.5]
+                search_routine_input.z_bounds = [2.,3.5]
+                search_routine_input.wall_dist = 4.
                 search_routine_input.vert_range = 1.
-                search_routine_input.ccw_flag = False
+                search_routine_input.ccw_flag = True
                 search_routine = search_routine_serv(search_routine_input)
             if not search_traj_started:
                 publish_target = True
