@@ -14,6 +14,7 @@ launch_gunner_rate = rospy.get_param('launch_gunner_rate',150)
 # initialize variables
 state = String()
 info_received = False
+delay = float32(0) # second
 
 def state_callback(msg):
     # fetch state from commander
@@ -73,6 +74,7 @@ def launch_gunner():
 
             # pass vehicle info to sight and receive launch error
             launch_sight_input.odometry = ball_odometry
+            launch_sight_input.delay = delay
             launch_sight = launch_sight_handle(launch_sight_input)
 
             # check error
@@ -82,6 +84,9 @@ def launch_gunner():
                 # update tirgger flag and launch ball if the error is smaller than tolerance
                 if np.sqrt(error@error.T)<tolerance:
                     trigger = Bool(True)
+                    ##simulated delay##
+                    rospy.sleep(delay)
+                    ###################
                     magnet_pub.publish(0.0)
 
             # publish error and trigger flag
