@@ -38,7 +38,7 @@ def perform_launch_maneuver(req):
     launch_point.velocities = [Twist()]
     launch_point.accelerations = [Twist()]
 
-    end_position = target_position + 100*wall_normal
+    end_position = target_position + 0*wall_normal
     end_position[2] = start_position[2]
     end_point = MultiDOFJointTrajectoryPoint()
     end_point.transforms = [Transform(translation=Vector3(end_position[0],end_position[1],end_position[2]),\
