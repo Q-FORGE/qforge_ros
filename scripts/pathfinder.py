@@ -92,7 +92,7 @@ def pathfinder():
 
 
     alpha = 0.
-    omega = 3.14/8
+    omega = 3.14/16.
 
 
     while not rospy.is_shutdown():
@@ -111,7 +111,7 @@ def pathfinder():
             step_skip = 5
             look_ahead_factor = 1
             alpha = alpha + omega
-            xi = 0.75*0.785*np.sin(alpha)
+            xi = 0.1*3.1415*np.sin(alpha)
 
             for i in range(8,min(step_skip*10,length-step_skip),step_skip):
                 # ref_point = MultiDOFJointTrajectoryPoint()

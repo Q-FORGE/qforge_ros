@@ -30,7 +30,7 @@ def perform_launch_maneuver(req):
     start_point.velocities = [Twist()]
     start_point.accelerations = [Twist()]
 
-    launch_position = target_position - 100*wall_normal
+    launch_position = target_position - 0*wall_normal
     launch_position[2] = start_position[2]
     launch_point = MultiDOFJointTrajectoryPoint()
     launch_point.transforms = [Transform(translation=Vector3(launch_position[0],launch_position[1],launch_position[2]),\
@@ -45,7 +45,7 @@ def perform_launch_maneuver(req):
         rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]
     end_point.velocities = [Twist()]
     end_point.accelerations = [Twist()]
-    
+
     rospy.sleep(1)
     pos_ctr_pub.publish(launch_point)
     rospy.sleep(t_accel)
@@ -71,4 +71,3 @@ if __name__ == "__main__":
         launch_maneuver_server()
     except rospy.ROSInterruptException:
         pass
-    
