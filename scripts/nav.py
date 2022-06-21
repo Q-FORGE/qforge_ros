@@ -157,7 +157,7 @@ def navigator():
                 sweep_traj_started = True
             else:
                 publish_target = False
-            if (now.secs - initial_sweep_time.secs > 6.):
+            if (now.secs - initial_sweep_time.secs > 0.1):
                 sweep_complete_pub.publish(True)
             setpoint_traj = initial_sweep.trajectory
 
