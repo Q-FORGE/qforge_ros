@@ -16,15 +16,18 @@ def calculate_launch_sight(req):
 
     uav_pos_i = np.array([[req.odometry.pose.pose.position.x,req.odometry.pose.pose.position.y,\
         req.odometry.pose.pose.position.z]])
-    C_ib = R.from_quat([req.odometry.pose.pose.orientation.x,req.odometry.pose.pose.orientation.y,\
-        req.odometry.pose.pose.orientation.z,req.odometry.pose.pose.orientation.w])
-    uav_vel_i = C_ib.apply([[req.odometry.twist.twist.linear.x,req.odometry.twist.twist.linear.y,\
-        req.odometry.twist.twist.linear.z]])
-    uav_omega_i = C_ib.apply([[req.odometry.twist.twist.angular.x,req.odometry.twist.twist.angular.y,\
-        req.odometry.twist.twist.angular.z]])
+    C_ib = R.from_quat(np.array([req.odometry.pose.pose.orientation.x,req.odometry.pose.pose.orientation.y,\
+        req.odometry.pose.pose.orientation.z,req.odometry.pose.pose.orientation.w]))
+    uav_vel_i = C_ib.apply(np.array([[req.odometry.twist.twist.linear.x,req.odometry.twist.twist.linear.y,\
+        req.odometry.twist.twist.linear.z]]))
+    uav_omega_i = C_ib.apply(np.array([[req.odometry.twist.twist.angular.x,req.odometry.twist.twist.angular.y,\
+        req.odometry.twist.twist.angular.z]]))
     r_qs_i = C_ib.apply([[0,0,-0.4]])
 
-    ball_position = uav_pos_i + r_qs_i
+    C_delay = R.from_rotvec(req.delay*uav_omega_i)
+    pos_delay = req.delay*uav_vel_i
+
+    ball_position = uav_pos_i + pos_delay + C_delay.apply(r_qs_i)
     ball_velocity = uav_vel_i + np.cross(uav_omega_i,r_qs_i)
 
     target_position = np.array([[req.target_position.x,req.target_position.y,req.target_position.z]])
