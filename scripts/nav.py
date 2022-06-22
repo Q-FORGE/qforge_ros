@@ -97,7 +97,7 @@ def navigator():
     tag_sub = rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback)
 
     # Define target waypoint and trajectory publishers
-    target_pose_pub = rospy.Publisher('position_hold/trajectory', MultiDOFJointTrajectoryPoint, queue_size = 1, latch = True)
+    target_pose_pub = rospy.Publisher('tracker/input_pose', PoseStamped, queue_size = 1, latch = True)
     target_traj_pub = rospy.Publisher('tracker/input_trajectory', MultiDOFJointTrajectory, queue_size = 1, latch = True)
 
     # Define ball drop start position publisher
@@ -237,11 +237,11 @@ def navigator():
             if publish_traj:
                 target_traj_pub.publish(setpoint_traj)
             else:
-                target_traj_pub.publish(MultiDOFJointTrajectory())
-                setpoint_point.transforms = [Transform(translation=Vector3(setpoint_pose.pose.position.x,\
-                setpoint_pose.pose.position.y,setpoint_pose.pose.position.z),\
-                rotation=setpoint_pose.pose.orientation)]
-                target_pose_pub.publish(setpoint_point)
+#                target_traj_pub.publish(MultiDOFJointTrajectory())
+#                setpoint_point.transforms = [Transform(translation=Vector3(setpoint_pose.pose.position.x,\
+#                setpoint_pose.pose.position.y,setpoint_pose.pose.position.z),\
+#                rotation=setpoint_pose.pose.orientation)]
+                target_pose_pub.publish(setpoint_pose)
             publish_target = False
             last_msg = rospy.Time.now()
 
