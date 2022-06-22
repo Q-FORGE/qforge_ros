@@ -193,7 +193,7 @@ def navigator():
                 search_routine_input.z_bounds = [1.3,1.7]
                 search_routine_input.wall_dist = 0.
                 search_routine_input.vert_range = 0.1
-                search_routine_input.ccw_flag = True
+                search_routine_input.ccw_flag = False
                 search_routine = search_routine_serv(search_routine_input)
             if not search_traj_started:
                 publish_target = True
@@ -209,7 +209,7 @@ def navigator():
                 publish_target = True
             setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
             setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
-            setpoint_pose.pose.position.z = target_position.z + wall_normal.z*refine_spacing
+            setpoint_pose.pose.position.z = target_position.z + wall_normal.z*refine_spacing + 0.5
             setpoint_pose.pose.orientation = quat_from_normal(wall_normal)
 
         elif state.data == 'trans_to_drop':
