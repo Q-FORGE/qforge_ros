@@ -22,6 +22,7 @@ def hawk2fwd():
     rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
 
     while not rospy.is_shutdown():
+        pass
 
 
 if __name__ == '__main__':
