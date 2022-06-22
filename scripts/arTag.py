@@ -25,7 +25,7 @@ except ImportError:
 
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
-Pmin = rospy.get_param('arTag_lock_lim',12e-3)
+Pmin = rospy.get_param('arTag_lock_lim',14e-3)
 # Pmin = rospy.get_param('arTag_lock_lim',14e-10)
 
 global zone_num
@@ -37,7 +37,7 @@ ar_refine_flag = False
 global time_ar_refine
 time_ar_refine = 0
 
-global snappy_snap_snap 
+global snappy_snap_snap
 snappy_snap_snap = False
 
 
@@ -201,7 +201,7 @@ def arTag():
         q[1] = data2.pose.orientation.x
         q[2] = data2.pose.orientation.y
         q[3] = data2.pose.orientation.z
-        q_cls = quat(q) 
+        q_cls = quat(q)
         q_cls.calc_rot()
         Cbi = q_cls.R
         H = np.transpose(np.matmul(Cbi,Ccb))
@@ -255,7 +255,7 @@ def arTag():
                         msg.position_best.x = 1
                     elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
                         msg.position_best.y = -7.5
-                
+
 
             badness_old = badness
 
@@ -277,7 +277,7 @@ def arTag():
                 imageSnapped = True
         else:
             msg.lock = False
-    
+
         msg.detect = tagDetect
         # rospy.logwarn(badness)
         tag_pub.publish(msg)
