@@ -53,14 +53,15 @@ def pose_callback(msg,args):
     else:
         alt_state = True
 
-    if ((x >= -4.) and (x < -2.5)):
-        current_zone = 1
-    elif ((x >= -2.5) and (x < -2.)):
-        current_zone = 2
-    elif ((x >= -2.) and (x < 4.)):
-        current_zone = 3
-    else:
-        current_zone = -1
+#    if ((x >= -4.) and (x < -2.5)):
+#        current_zone = 1
+#    elif ((x >= -2.5) and (x < -2.)):
+#        current_zone = 2
+#    elif ((x >= -2.) and (x < 4.)):
+#        current_zone = 3
+#    else:
+#        current_zone = -1
+    current_zone = 3
 
 def start_callback(msg):
     # Set 'start_point' when topic is published
