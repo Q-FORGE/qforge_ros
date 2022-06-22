@@ -87,7 +87,7 @@ def pathfinder():
     bridge = CvBridge()
 
     rospy.Subscriber('/local_pointcloud', PointCloud2, pointcloud_callback, queue_size=1, buff_size=2**24)
-    rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
+    rospy.Subscriber('/hawk2/vrpn_client/estimated_odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
     rospy.Subscriber('current_zone', Int16, current_zone_callback, queue_size=1, buff_size=2**24)
 
 
