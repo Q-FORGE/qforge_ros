@@ -53,11 +53,11 @@ def pose_callback(msg,args):
     else:
         alt_state = True
 
-    if ((x >= -12.5) and (x < -8.)):
+    if ((x >= -8.) and (x < -3.)):
         current_zone = 1
-    elif ((x >= -8.) and (x < 1.)):
+    elif ((x >= -3.) and (x < 0.5)):
         current_zone = 2
-    elif ((x >= 1.) and (x < 12.5)):
+    elif ((x >= 0.5) and (x < 5.)):
         current_zone = 3
     else:
         current_zone = -1
@@ -82,7 +82,7 @@ def state_monitor():
     ready_pub = rospy.Publisher('launch/drop_primed', Bool, queue_size = 1)
 
     # Define pose subscriber
-    pose_sub = rospy.Subscriber('odometry',Odometry, pose_callback, ready_pub)
+    pose_sub = rospy.Subscriber('/hawk2/vrpn_client/estimated_odometry',Odometry, pose_callback, ready_pub)
     start_pose_sub = rospy.Subscriber('launch/start_pose', PoseStamped,
             start_callback)
 
