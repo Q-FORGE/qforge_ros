@@ -50,7 +50,7 @@ def launch_gunner():
     magnet_pub = rospy.Publisher('uav_magnet/gain', Float32, queue_size=1,latch=True)
 
     # define subscriber
-    rospy.Subscriber('odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
+    rospy.Subscriber('hawk2/vrpn_client/estimated_odometry', Odometry, odometry_callback, queue_size=1, buff_size=2**24)
     rospy.Subscriber('vehicle_state', String, state_callback, queue_size=1, buff_size=2**24)
     rospy.Subscriber('ar_tag_est', ArTagLocation, tag_callback, queue_size=1, buff_size=2**24)
 
