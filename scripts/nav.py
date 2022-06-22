@@ -28,7 +28,7 @@ from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectory
 
 # Fetch node rate parameter
 nav_rate = rospy.get_param('nav_rate',10)
-refine_spacing = rospy.get_param('refine_spacing',3)
+refine_spacing = rospy.get_param('refine_spacing',2)
 
 # Initialize variables
 setpoint_pose = PoseStamped()
@@ -145,11 +145,11 @@ def navigator():
             publish_traj = True
             if not sweep_traj_gen:
                 sweep_traj_gen = True
-                initial_sweep_input.y_bounds = [-7.5,7.5]
-                initial_sweep_input.y_spacing = 4.25
-                initial_sweep_input.initial_position.x = -10.
+                initial_sweep_input.y_bounds = [-2.5,2.5]
+                initial_sweep_input.y_spacing = 2.25
+                initial_sweep_input.initial_position.x = -3.
                 initial_sweep_input.initial_position.y = 0.
-                initial_sweep_input.initial_position.z = 3.
+                initial_sweep_input.initial_position.z = 1.5
                 initial_sweep = initial_sweep_serv(initial_sweep_input)
                 initial_sweep_time = rospy.Time.now()
             if not sweep_traj_started:
@@ -157,7 +157,7 @@ def navigator():
                 sweep_traj_started = True
             else:
                 publish_target = False
-            if (now.secs - initial_sweep_time.secs > 0.1):
+            if (now.secs - initial_sweep_time.secs > -1.):
                 sweep_complete_pub.publish(True)
             setpoint_traj = initial_sweep.trajectory
 
@@ -190,10 +190,10 @@ def navigator():
                 search_traj_gen = True
                 search_routine_input.x_bounds = [0.5,1.]
                 search_routine_input.y_bounds = [-0.25,0.25]
-                search_routine_input.z_bounds = [1.3,1.7]
+                search_routine_input.z_bounds = [1.4,1.6]
                 search_routine_input.wall_dist = 0.
-                search_routine_input.vert_range = 0.1
-                search_routine_input.ccw_flag = True
+                search_routine_input.vert_range = 0.05
+                search_routine_input.ccw_flag = False
                 search_routine = search_routine_serv(search_routine_input)
             if not search_traj_started:
                 publish_target = True
@@ -209,7 +209,7 @@ def navigator():
                 publish_target = True
             setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
             setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
-            setpoint_pose.pose.position.z = target_position.z + wall_normal.z*refine_spacing
+            setpoint_pose.pose.position.z = max(1.,min(target_position.z + wall_normal.z*refine_spacing + 0.5,2.25))
             setpoint_pose.pose.orientation = quat_from_normal(wall_normal)
 
         elif state.data == 'trans_to_drop':

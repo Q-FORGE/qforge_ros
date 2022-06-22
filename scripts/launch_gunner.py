@@ -14,7 +14,7 @@ launch_gunner_rate = rospy.get_param('launch_gunner_rate',150)
 # initialize variables
 state = String()
 info_received = False
-delay = 0.25 # seconds
+delay = 0.15 # seconds
 
 def state_callback(msg):
     # fetch state from commander
@@ -90,7 +90,7 @@ def launch_gunner():
                 if np.sqrt(error@error.T)<tolerance:
                     trigger = Bool(True)
                     ##simulated delay##
-                    rospy.sleep(delay)
+#                    rospy.sleep(delay)
                     ###################
                     magnet_pub.publish(0.0)
 

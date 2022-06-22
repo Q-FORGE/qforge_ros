@@ -53,11 +53,11 @@ def pose_callback(msg,args):
     else:
         alt_state = True
 
-    if ((x >= -15.) and (x < -3.)):
+    if ((x >= -4.) and (x < -2.5)):
         current_zone = 1
-    elif ((x >= -3.) and (x < 0.5)):
+    elif ((x >= -2.5) and (x < -2.)):
         current_zone = 2
-    elif ((x >= 0.5) and (x < 15.)):
+    elif ((x >= -2.) and (x < 4.)):
         current_zone = 3
     else:
         current_zone = -1
