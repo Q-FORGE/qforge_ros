@@ -121,7 +121,7 @@ def pathfinder():
                 ref_point = MultiDOFJointTrajectoryPoint()
                 # xi = np.arctan2(path[i+step_skip][1]-path[i][1],path[i+step_skip][0]-path[i][0])
                 # xi = 0
-                ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,-np.sin(xi/2),-np.cos(xi/2)))]
+                ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],1.5),rotation=Quaternion(0,0,-np.sin(xi/2),-np.cos(xi/2)))]
                 # print(ref_point)
 
                 ref_traj.points.append(ref_point)
@@ -131,7 +131,7 @@ def pathfinder():
                 vis_point = PoseStamped()
                 vis_point.pose.position.x = path[i][0]
                 vis_point.pose.position.y = path[i][1]
-                vis_point.pose.position.z = 3
+                vis_point.pose.position.z = 1.5
                 vis_point.pose.orientation.w = 1
                 vis_point.pose.orientation.x = 0
                 vis_point.pose.orientation.y = 0

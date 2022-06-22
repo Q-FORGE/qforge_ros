@@ -10,7 +10,7 @@ from qforge_ros.srv import LaunchManeuver,LaunchManeuverResponse
 from std_msgs.msg import Bool
 
 x_offset = 2
-z_offset = 1 + 0.5
+z_offset = 1 + 0.25
 t_accel = 0.7
 
 def perform_launch_maneuver(req):
@@ -22,8 +22,8 @@ def perform_launch_maneuver(req):
     HDG_quat = r.as_quat()
 
     start_position = target_position + x_offset*wall_normal + z_offset*np.array([0,0,1])
-    if target_position[2] >= 2.5:
-        start_position[2] = 4
+    if target_position[2] >= 1.:
+        start_position[2] = 2.25
     start_point = MultiDOFJointTrajectoryPoint()
     start_point.transforms = [Transform(translation=Vector3(start_position[0],start_position[1],start_position[2]),\
     rotation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))]

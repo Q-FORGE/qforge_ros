@@ -8,7 +8,7 @@ from geometry_msgs.msg import PoseStamped,Pose,Point,Quaternion
 from qforge_ros.srv import LaunchStart, LaunchStartResponse
 
 x_offset = 2
-z_offset = 1 + 0.5
+z_offset = 1 + 0.25
 t_accel = 0.7
 
 def calculate_launch_start(req):
@@ -20,15 +20,15 @@ def calculate_launch_start(req):
     HDG_quat = r.as_quat()
 
     start_position = target_position + x_offset*wall_normal + z_offset*np.array([0,0,1])
-    if target_position[2] >= 2.5:
-        start_position[2] = 4
+    if target_position[2] >= 1.:
+        start_position[2] = 2.25
     start_point = PoseStamped()
     start_point.pose = Pose(position=Point(start_position[0],start_position[1],start_position[2]),\
         orientation=Quaternion(HDG_quat[0,0],HDG_quat[0,1],HDG_quat[0,2],HDG_quat[0,3]))
 
     response = LaunchStartResponse()
     response.start_point = start_point
-    
+
     return response
 
 def launch_start_server():
@@ -41,4 +41,3 @@ if __name__ == "__main__":
         launch_start_server()
     except rospy.ROSInterruptException:
         pass
-    
