@@ -234,7 +234,9 @@ def arTag():
 
         msg.position.x = x_kk[0]
         msg.position.y = x_kk[1]
-        msg.position.z = x_kk[2]
+        # msg.position.z = x_kk[2]
+        msg.position.z = 0.9
+
 
         if badness < badness_old:
             msg.position_best.x = msg.position.x
