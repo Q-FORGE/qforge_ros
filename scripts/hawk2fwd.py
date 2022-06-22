@@ -6,7 +6,7 @@
 # Subscribes to odometry '/red/odometry'
 
 import rospy
-from scripts.pathfinder import odometry_callback
+# from scripts.pathfinder import odometry_callback
 from nav_msgs.msg import Odometry
 
 global odom_pub 
