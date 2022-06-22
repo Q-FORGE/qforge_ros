@@ -90,7 +90,7 @@ def launch_gunner():
                 if np.sqrt(error@error.T)<tolerance:
                     trigger = Bool(True)
                     ##simulated delay##
-                    rospy.sleep(delay)
+#                    rospy.sleep(delay)
                     ###################
                     magnet_pub.publish(0.0)
 
