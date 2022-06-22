@@ -64,41 +64,52 @@ class quat:
         self.R[2,2] = 1 - 2*s*(qi**2 + qj**2)
 
 def getNorm(xt,yt):
-    x1 = 12.5
-    y1 = -7.5
+    # x1 = 12.5
+    # y1 = -7.5
 
-    x2 = 12.5
-    y2 = 7.5
+    # x2 = 12.5
+    # y2 = 7.5
 
-    x3 = 1.0
-    y3 = 7.5
+    # x3 = 1.0
+    # y3 = 7.5
 
-    x4 = 1.0
-    y4 = -7.5
+    # x4 = 1.0
+    # y4 = -7.5
 
-    def lineDist(xs,ys,xe,ye,xi,yi):
-        return abs((xe-xs)*(ys-yi) - (xs-xi)*(ye-ys)) / np.sqrt((xe-xs)**2 + (ye-ys)**2)
+    x1 = 4
+    y1 = -2.5
 
-    # d1 = lineDist(x1,y1,x2,x2,xt,yt)
-    # d2 = lineDist(x2,y2,x3,x3,xt,yt)
-    # d3 = lineDist(x3,y3,x4,x4,xt,yt)
-    # d4 = lineDist(x4,y4,x1,x1,xt,yt)
+    x2 = 4
+    y2 = 2.5
 
-    d1 = abs(x1-xt)
-    d2 = abs(y2-yt)
-    d3 = abs(x4-xt)
-    d4 = abs(y1-yt)
+    x3 = -2
+    y3 = 2.5
 
-    # rospy.logwarn(" d1: " + str(d1) + " d2: " + str(d2) + " d3: " + str(d3) + " d4: " + str(d4))
+    x4 = -2
+    y4 = -2.5
 
-    if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
-        return [-1,0,0]
-    elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
+    d1 = abs(x1-xt) # front wall
+    d2 = abs(y2-yt) # left wall
+    d3 = abs(x4-xt) # back wall
+    d4 = abs(y1-yt) # right wall
+
+    wall_lim = 0.5
+
+    if(d2 < wall_lim):
         return [0,-1,0]
-    elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
+    elif(d3 < wall_lim):
         return [1,0,0]
-    elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
-        return [0,1,0]
+    else:
+        return [-1,0,0]
+
+    # if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
+    #     return [-1,0,0]
+    # elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
+    #     return [0,-1,0]
+    # elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
+    #     return [1,0,0]
+    # elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
+    #     return [0,1,0]
 
 def writeBox(image,pos):
     bridge = CvBridge()
@@ -233,12 +244,12 @@ def arTag():
             erhc = np.sqrt((msg.position.x - 12.5)**2 + (msg.position.y + 7.5)**2)
             e_corner_limit = 1
 
-            x1 = 12.5
-            y1 = -7.5
+            x1 = 4.0
+            y1 = -2.5
 
-            y2 = 7.5
+            y2 = 2.5
 
-            x4 = 1.0
+            x4 = -2.0
 
             d1 = abs(x1-msg.position.x)
             d2 = abs(y2-msg.position.y)
@@ -248,14 +259,13 @@ def arTag():
             if snappy_snap_snap:
                 if elhc > e_corner_limit and erhc > e_corner_limit:
                     if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
-                        msg.position_best.x = 12.5
+                        msg.position_best.x = 4
                     elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
-                        msg.position_best.y = 7.5
+                        msg.position_best.y = 2.5
                     elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
-                        msg.position_best.x = 1
+                        msg.position_best.x = -2
                     elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
-                        msg.position_best.y = -7.5
-
+                        msg.position_best.y = -2.5
 
             badness_old = badness
 

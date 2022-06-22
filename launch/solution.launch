@@ -9,5 +9,6 @@
     <include file="$(find qforge_ros)/launch/initial_sweep.launch"/>
     <include file="$(find qforge_ros)/launch/local_planner_depth-camera.launch"/>
     <include file="$(find qforge_ros)/launch/pathfinder.launch"/>
+    <node name="hawk2odom" pkg="qforge_ros" type="hawk2fwd.py"/>
   </group>
 </launch>
