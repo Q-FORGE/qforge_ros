@@ -35,13 +35,13 @@ pathfinder_rate = rospy.get_param('pathfinder_rate',5)
 obs_sd = rospy.get_param('obs_safe_dist_m',1.1)
 wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.5)
 
-zone2_wi_x = 25
-zone2_wi_y = 14
+zone2_wi_x = 8
+zone2_wi_y = 5
 
 sparsity = 0.1
 
-tlhc_world_x = 12.5
-tlhc_world_y = 7.5
+tlhc_world_x = 4
+tlhc_world_y = 2.5
 
 min_dist_pc2_sqr = 0.7**2 #m
 
@@ -51,7 +51,7 @@ global uav_pos, battleShip, zone_num
 zone_num = 1
 battleShip = BattleGrid(zone2_wi_x, zone2_wi_y, tlhc_world_x, tlhc_world_y, sparsity, True, obs_sd, wall_sd_mod_frac)
 
-uav_pos = np.array([-10, 0, 3])
+uav_pos = np.array([-1, 0, 0])
 
 
 def pointcloud_callback(msg):
