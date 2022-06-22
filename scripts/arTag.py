@@ -23,7 +23,6 @@ try:
 except ImportError:
     rospy.logerr("Open CV dependency not met. Please run 'pip install opencv-python' or rebuild the image")
 
-
 # Fetch node rate parameter
 arTag_rate = rospy.get_param('arTag_rate',50)
 Pmin = rospy.get_param('arTag_lock_lim',12e-3)
@@ -37,6 +36,9 @@ ar_refine_flag = False
 
 global time_ar_refine
 time_ar_refine = 0
+
+global snappy_snap_snap 
+snappy_snap_snap = False
 
 
 class quat:
@@ -156,11 +158,14 @@ def arTag():
     rtc_old = rtc
     q = np.array([0.0, 0.0, 0.0, 0.0])
     qcb = np.array([0.500,-0.500, 0.500, -0.500])
+    qcb = np.array([0, 0.257, 0, 0.966])
+    qcb = np.array([ -0.355,0.612, -0.612, 0.355])
     quat_cb = quat(qcb)
     quat_cb.calc_rot()
     Ccb = quat_cb.R
     rbi = np.array([0.0,0.0,0.0])
     rcb = np.array([0.200, 0.000, 0.050])
+    rcb = np.array([0.135, 0.035, -0.105])
     x_kk = np.array([0, 0,0]) # initial position
 
     msg = ArTagLocation()
@@ -189,7 +194,7 @@ def arTag():
         rtc[1] = data.y
         rtc[2] = data.z
 
-        data2p = rospy.wait_for_message('odometry', Odometry)
+        data2p = rospy.wait_for_message('/hawk2/vrpn_client/estimated_odometry', Odometry)
         data2 = data2p.pose
 
         q[0] = data2.pose.orientation.w
@@ -240,15 +245,16 @@ def arTag():
             d3 = abs(x4-msg.position.x)
             d4 = abs(y1-msg.position.y)
 
-            if elhc > e_corner_limit and erhc > e_corner_limit:
-                if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
-                    msg.position_best.x = 12.5
-                elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
-                    msg.position_best.y = 7.5
-                elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
-                    msg.position_best.x = 1
-                elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
-                    msg.position_best.y = -7.5
+            if snappy_snap_snap:
+                if elhc > e_corner_limit and erhc > e_corner_limit:
+                    if (d1 <= d2) and (d1 <= d3) and (d1 <= d4):
+                        msg.position_best.x = 12.5
+                    elif (d2 <= d1) and (d2 <= d3) and (d2 <= d4):
+                        msg.position_best.y = 7.5
+                    elif (d3 <= d1) and (d3 <= d2) and (d3 <= d4):
+                        msg.position_best.x = 1
+                    elif (d4 <= d1) and (d4 <= d2) and (d4 <= d3):
+                        msg.position_best.y = -7.5
                 
 
             badness_old = badness
