@@ -106,7 +106,7 @@ def pathfinder():
             ref_traj = MultiDOFJointTrajectory()
             vis_traj = Path()
             vis_traj.poses = []
-            vis_traj.header.frame_id = "world"
+            vis_traj.header.frame_id = "optitrack"
             ref_traj.points = []
             step_skip = 5
             look_ahead_factor = 1
