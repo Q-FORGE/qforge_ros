@@ -90,7 +90,7 @@ def navigator():
 
     # Define vehicle state and position subscribers
     state_sub = rospy.Subscriber('vehicle_state', String, state_callback)
-    pose_sub = rospy.Subscriber('odometry', Odometry, pose_callback)
+    pose_sub = rospy.Subscriber('hawk2/vrpn_client/estimated_odometry', Odometry, pose_callback)
     planner_pose_sub = rospy.Subscriber('pathfinder/trajectory', MultiDOFJointTrajectory, pathfinder_callback)
 
     # Define ar tag location subscriber
@@ -188,11 +188,11 @@ def navigator():
             publish_traj = True
             if not search_traj_gen:
                 search_traj_gen = True
-                search_routine_input.x_bounds = [1.,12.5]
-                search_routine_input.y_bounds = [-7.5,7.5]
-                search_routine_input.z_bounds = [2.,3.5]
-                search_routine_input.wall_dist = 4.
-                search_routine_input.vert_range = 1.
+                search_routine_input.x_bounds = [0.5,1.]
+                search_routine_input.y_bounds = [-0.25,0.25]
+                search_routine_input.z_bounds = [1.3,1.7]
+                search_routine_input.wall_dist = 0.
+                search_routine_input.vert_range = 0.1
                 search_routine_input.ccw_flag = True
                 search_routine = search_routine_serv(search_routine_input)
             if not search_traj_started:
