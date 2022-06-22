@@ -93,12 +93,13 @@ def getNorm(xt,yt):
     d3 = abs(x4-xt) # back wall
     d4 = abs(y1-yt) # right wall
 
+   
     wall_lim = 0.5
 
     if(d2 < wall_lim):
         return [0,-1,0]
-    elif(d3 < wall_lim):
-        return [1,0,0]
+    elif(d4 < wall_lim):
+        return [0,1,0]
     else:
         return [-1,0,0]
 
