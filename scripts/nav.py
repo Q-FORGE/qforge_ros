@@ -33,8 +33,6 @@ refine_spacing = rospy.get_param('refine_spacing',3)
 # Initialize variables
 setpoint_pose = PoseStamped()
 setpoint_traj = MultiDOFJointTrajectory()
-refine_point = MultiDOFJointTrajectoryPoint()
-refine_traj = MultiDOFJointTrajectory()
 setpoint_point = MultiDOFJointTrajectoryPoint()
 setpoint_point.velocities = [Twist()]
 setpoint_point.accelerations = [Twist()]
@@ -206,17 +204,13 @@ def navigator():
 
         elif state.data == 'ar_refine':
             now = rospy.Time.now()
-            publish_traj = True
+            publish_traj = False
             if (now.secs - last_msg.secs > 1.):
                 publish_target = True
             setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
             setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
             setpoint_pose.pose.position.z = target_position.z + wall_normal.z*refine_spacing
             setpoint_pose.pose.orientation = quat_from_normal(wall_normal)
-            refine_point.transforms = [Transforms(translations=Vector3(setpoint_pose.pose.position.x, \
-                    setpoint_pose.pose.position.y,setpoint_pose.pose.position.z), \
-                    rotation=setpoint_pose.pose.orientation]
-            refine_traj.trajectory.points = [refine_point]
 
         elif state.data == 'trans_to_drop':
             now = rospy.Time.now()
