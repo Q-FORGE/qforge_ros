@@ -35,7 +35,7 @@ def calculate_initial_sweep(req):
     p2.transforms = [Transform(translation=Vector3(point_right[0],point_right[1],point_right[2]),rotation=Quaternion(0,0,np.sin(-angle/2),np.cos(-angle/2)))]
     p3.transforms = [Transform(translation=Vector3(point_center[0],point_center[1],point_center[2]),rotation=Quaternion(0,0,0,1))]
     response.trajectory.points.append(p1)
-    response.trajectory.points.append(p2)    
+    response.trajectory.points.append(p2)
     response.trajectory.points.append(p3)
 
     return response

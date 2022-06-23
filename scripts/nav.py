@@ -146,7 +146,7 @@ def navigator():
             if not sweep_traj_gen:
                 sweep_traj_gen = True
                 initial_sweep_input.y_bounds = [-2.5,2.5]
-                initial_sweep_input.y_spacing = 2.25
+                initial_sweep_input.y_spacing = 2.45
                 initial_sweep_input.initial_position.x = -3.
                 initial_sweep_input.initial_position.y = 0.
                 initial_sweep_input.initial_position.z = 1.5
@@ -157,7 +157,7 @@ def navigator():
                 sweep_traj_started = True
             else:
                 publish_target = False
-            if (now.secs - initial_sweep_time.secs > -1.):
+            if (now.secs - initial_sweep_time.secs > 3.):
                 sweep_complete_pub.publish(True)
             setpoint_traj = initial_sweep.trajectory
 
