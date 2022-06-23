@@ -96,7 +96,7 @@ def pathfinder():
 
 
     while not rospy.is_shutdown():
-        if zone_num is not 3:
+        if zone_num != 3:
             battleShip.getWaypoint(uav_pos[0],uav_pos[1],2,0)
 
             path = battleShip.refPath_world
