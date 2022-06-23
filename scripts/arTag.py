@@ -198,7 +198,7 @@ def arTag():
         data = rospy.wait_for_message('ar_point', Point)
         camPos = data
         tag_hits = tag_hits + 1
-        if zone_num == 3 and tag_hits > 1:
+        if tag_hits > 1:
             tagDetect = True
         else:
             tagDetect = False
