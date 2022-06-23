@@ -93,7 +93,7 @@ def getNorm(xt,yt):
     d3 = abs(x4-xt) # back wall
     d4 = abs(y1-yt) # right wall
 
-   
+
     wall_lim = 0.5
 
     if(d2 < wall_lim):
@@ -235,7 +235,7 @@ def arTag():
         msg.position.x = x_kk[0]
         msg.position.y = x_kk[1]
         # msg.position.z = x_kk[2]
-        msg.position.z = 0.9
+        msg.position.z = 0.75
 
 
         if badness < badness_old:
