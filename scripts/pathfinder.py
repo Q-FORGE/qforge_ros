@@ -30,7 +30,7 @@ except ImportError:
 
 
 # Fetch node rate parameter
-pathfinder_rate = rospy.get_param('pathfinder_rate',5)
+pathfinder_rate = rospy.get_param('pathfinder_rate',1)
 
 obs_sd = rospy.get_param('obs_safe_dist_m',1.1)
 wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.5)
@@ -108,7 +108,7 @@ def pathfinder():
             vis_traj.poses = []
             vis_traj.header.frame_id = "optitrack"
             ref_traj.points = []
-            step_skip = 5
+            step_skip = 10
             look_ahead_factor = 1
             alpha = alpha + omega
             xi = 0.1*3.1415*np.sin(alpha)
