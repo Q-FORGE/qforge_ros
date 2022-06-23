@@ -28,7 +28,7 @@ from trajectory_msgs.msg import MultiDOFJointTrajectory, MultiDOFJointTrajectory
 
 # Fetch node rate parameter
 nav_rate = rospy.get_param('nav_rate',10)
-refine_spacing = rospy.get_param('refine_spacing',2.5)
+refine_spacing = rospy.get_param('refine_spacing',2.)
 
 # Initialize variables
 setpoint_pose = PoseStamped()
@@ -207,9 +207,12 @@ def navigator():
             publish_traj = False
             if (now.secs - last_msg.secs > 1.):
                 publish_target = True
-            setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
-            setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
-            setpoint_pose.pose.position.z = max(1.5,min(target_position.z + wall_normal.z*refine_spacing + 1,2.25))
+            #setpoint_pose.pose.position.x = target_position.x + wall_normal.x*refine_spacing
+            #setpoint_pose.pose.position.y = target_position.y + wall_normal.y*refine_spacing
+            #setpoint_pose.pose.position.z = max(1.5,min(target_position.z + wall_normal.z*refine_spacing + 1,2.25))
+            setpoint_pose.pose.position.x = 0.5
+            setpoint_pose.pose.position.y = 0.
+            setpoint_pose.pose.position.z = 1.5
             setpoint_pose.pose.orientation = quat_from_normal(wall_normal)
 
         elif state.data == 'trans_to_drop':
