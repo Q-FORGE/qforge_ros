@@ -108,7 +108,7 @@ def pathfinder():
             vis_traj.poses = []
             vis_traj.header.frame_id = "optitrack"
             ref_traj.points = []
-            step_skip = 10
+            step_skip = 15
             look_ahead_factor = 1
             alpha = alpha + omega
             xi = 0.1*3.1415*np.sin(alpha)
