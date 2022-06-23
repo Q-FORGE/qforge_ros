@@ -30,7 +30,7 @@ except ImportError:
 
 
 # Fetch node rate parameter
-pathfinder_rate = rospy.get_param('pathfinder_rate',1)
+pathfinder_rate = rospy.get_param('pathfinder_rate',0.5)
 
 obs_sd = rospy.get_param('obs_safe_dist_m',1.1)
 wall_sd_mod_frac = rospy.get_param('wall_safe_dist_mod_frac',0.5)
@@ -113,7 +113,7 @@ def pathfinder():
             alpha = alpha + omega
             xi = 0.1*3.1415*np.sin(alpha)
 
-            for i in range(8,min(step_skip*10,length-step_skip),step_skip):
+            for i in range(15,min(step_skip*10,length-step_skip),step_skip):
                 # ref_point = MultiDOFJointTrajectoryPoint()
                 # ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,0,1))]
                 # # print(ref_point)
