@@ -34,7 +34,7 @@ def tag_callback(msg):
 def launch_gunner():
     # initialize variables
     global state, target_position, wall_normal, ball_odometry, info_received
-    tolerance_base = 0.1;
+    tolerance_base = 0.2;
     tolerance = tolerance_base;
     trigger = False
     launch_sight_input = LaunchSightRequest()

@@ -11,7 +11,7 @@ from std_msgs.msg import Bool
 
 x_offset = 2
 z_offset = 1 + 0.25
-t_accel = 0.7
+t_accel = 0.9
 
 def perform_launch_maneuver(req):
     target_position = np.array([req.target_position.x,req.target_position.y,req.target_position.z])
