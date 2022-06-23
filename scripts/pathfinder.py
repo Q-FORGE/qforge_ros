@@ -108,12 +108,12 @@ def pathfinder():
             vis_traj.poses = []
             vis_traj.header.frame_id = "optitrack"
             ref_traj.points = []
-            step_skip = 15
+            step_skip = 8
             look_ahead_factor = 1
             alpha = alpha + omega
             xi = 0.1*3.1415*np.sin(alpha)
 
-            for i in range(15,min(step_skip*10,length-step_skip),step_skip):
+            for i in range(8,min(step_skip*10,length-step_skip),step_skip):
                 # ref_point = MultiDOFJointTrajectoryPoint()
                 # ref_point.transforms = [Transform(translation=Vector3(path[i][0],path[i][1],3),rotation=Quaternion(0,0,0,1))]
                 # # print(ref_point)
